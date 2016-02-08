@@ -5,7 +5,7 @@
         - Fitness f(x): [No. interAgent collisions, averageOfMedianOfGroupRadii, meanDeltaTofArrival,t2Goal]
 
 ********************************************************************************
-    Author: David Camilo. Alvarez - Charris
+    Author: David C. Alvarez - Charris
     Contact: david13.ing@gmail.com
 
     Created on Mon Jan 18 17:25:11 2016
@@ -229,7 +229,7 @@ def main():
     percGenDisplay = 0.2
     interruptEvo = 0
     interruptperc =  0.20
-    logPath = 'C:\Users\IVAN\Desktop\evoBoids\evoLog\evoLog_try2.pckl'
+    logPath = 'C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\evoLog\evoLog_try6.pckl'
 
     " Evolutionary Configuration"
     popSeeding = 0
@@ -260,38 +260,36 @@ def main():
     # User configuration of evolutionary parameters      
     else: 
         # Evolution Parameters
-        popSize = 15# Population Size
-        generations = 25 # Number of Evolution generations
-        selectMethod = ['roulette',0.35] #['selectioMethod',probOfRandomParentSelection (i.e. dont use roulette)]
+        popSize = 20# Population Size
+        generations = 35 # Number of Evolution generations
+        selectMethod = ['roulette',0.4] #['selectioMethod',probOfRandomParentSelection (i.e. dont use roulette)]
         elitism =[1,int(math.ceil(0.20*popSize))]
         crossProb = 0.85
-        mutProb = [0.05,0.60] # [prob.OfMutation , %OfMutation]
+        mutProb = [0.065,0.70] # [prob.OfMutation , %OfMutation]
         numRept = 3 # No. of repetions each ind. is simulated, to obatain avg. fitness
         timeOutT = 10
        
         # Fitness Weights
-        interCollW = 27.0/100
-        medGRadiiW = 38.0/100
-        deltaTW = 20.0/100
-        # t2GoalW = 1.0/6
-        numATgoalW = 15.0/100
-        # evoSuccessW = 1.0/6
-        fitWeights = interCollW, medGRadiiW, deltaTW,numATgoalW    
+        interCollW = 33.0/100
+        medGRadiiW = 33.0/100
+        deltaTW = 17.0/100
+        avgNumATgoal = 17.0/100
+        fitWeights = interCollW, medGRadiiW, deltaTW,avgNumATgoal    
         fitWeights = np.array([fitWeights])       
 
     # Store Evolutionary Configuration (for Log)
     evoConfig = [popSize, generations,selectMethod,elitism,crossProb,mutProb,numRept,timeOutT,fitWeights]    
     estimatetEvoT = popSize*timeOutT*numRept*generations
     # estimatetEvoT += estimatetEvoT*0.05
-    raw_input("\nEstimated Evolutione time: %f s  ... Press Enter to continue ...\n" %estimatetEvoT)
+    raw_input("\nEstimated Evolution time: %f s  ... Press Enter to continue ...\n" %estimatetEvoT)
    
     # Ranges of evolutionary genes (used for initial random population AND for mutation operation)
     # Example param values: neighRadii = 150.0; cohW = 4.0/100 ; repW = 23.0/100; alignW = 20.0/100; crowdingThr = 10.0; leaderW = 17
-    neighRadii = [0,casualAgentR*10]
+    neighRadii = [0.0,casualAgentR*15]
     cohW = [0.0,1.0]
     repW = [0.0,1.0]
     alignW = [0.0,1.0]
-    crowdingThr = [0.0,casualAgentR*10]
+    crowdingThr = [0.0,casualAgentR*15]
     leaderW = [0.001,10.0]
     geneRange = [neighRadii,cohW,repW,alignW,crowdingThr,leaderW] 
     

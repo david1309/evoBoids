@@ -117,7 +117,7 @@ class Boid:
             distance = self.distance(boid)
 
             fact = 1.0 # used to modify Special Agents "repulsion force"
-            if boid.type > 0: fact = leaderW # decreases radii at which leader is repulsed
+            if boid.type > 0: fact = 1#leaderW # decreases radii at which leader is repulsed
             # if len(boids)>10 and type>0: fact /=100 # <-- C2!?
             elif boid.type < 0 and boid.type>=-99 : fact = 1/predatorW  # increases radii at which predator is repulsed
             elif boid.type<=-99 : fact = 1/(avoidW/3)  # increases radii at which obstacle is avoided
@@ -257,12 +257,15 @@ def main(argv):
 
     deltaTV = 0.0 
     deltaTV_PerIter = 0.0
-    goalRadii = casualAgentR*noBoids
+    goalRadii = int(math.ceil((casualAgentR*1.25)*noBoids))
     factUS = 1E6
 
     t2GoalV = timeOutT*1.0
     numATgoalPast = 0
     numATgoal = 0
+    iterINgoal = 0
+    avgNumATgoal = 0
+    ###    
     boidsNotATgoal = []
     boidsAtgoal = []
     currentTGoal = 0
@@ -275,7 +278,7 @@ def main(argv):
     # leaderW = 1.0 #10 How much more cohesion and less repulsion will Leader have
     # predatorW = 12.0 # How much more repulsion will predator have
     # avoidW = 16.0 # How much more repulsion (how far away) will agents evade obstacles
-    specialRFact = 1.75 #max(scenarioSize) #8 Factor which increases the Radii at which Special Agents are considerder neighbors
+    specialRFact = 3.0 #max(scenarioSize) #8 Factor which increases the Radii at which Special Agents are considerder neighbors
     # 0: Created both, leader/predator Auto.Agents ; 1/-1: Creadte Auto.leader/Auto predator agents
     # autoAgents = 0 
     # lists that store controled and special agent object instances (needed in order to delete them when needed)
@@ -304,7 +307,7 @@ def main(argv):
         numIter += 1
         if numIter == 2:
             # First time pause for user to visualize simulation parameters
-            if(numIter == 1): raw_input("... Press enter to start simulation ...")
+            if(numIter == 2): raw_input("... Press enter to start simulation ...")
             # Capture Initial start time of simulation
             initT = datetime.now().time()
         elif numIter > 1:
@@ -439,12 +442,15 @@ def main(argv):
             boidsAtgoal = [boid for boid in boids if(boid not in boidsNotATgoal)]
 
         numATgoal = noBoids - len(boidsNotATgoal) 
+        if iterINgoal: avgNumATgoal += numATgoal
+
         if (numATgoal-numATgoalPast) > 0:
             numATgoalPast = numATgoal
             pastTGoal = currentTGoal
             currentTGoal = datetime.now().time()
 
             if firstGoal: 
+                iterINgoal = numIter
                 firstGoal = 0
             else:     
                 deltaTV_PerIter = (currentTGoal.hour-pastTGoal.hour)*3600.0*factUS + \
@@ -476,7 +482,7 @@ def main(argv):
             ## text characteristics
             txtColor = (255,255,255)
             stdFont = pygame.font.Font('freesansbold.ttf',15)
-            txtPos = (width-100,30)
+            txtPos = (int(width/2),int(height/2))
 
             ## texts
             neighRadiiTXT = "neighRadii : " + str(int(neighRadii))
@@ -511,8 +517,8 @@ def main(argv):
             # Update Boids visualization
             for boid in boids:
                 if boid.type > 0 : # Leaders              
-                    # pygame.draw.circle(scenario, (0,0,200), (int(boid.x), int(boid.y)), 11, 0)
-                    # pygame.draw.circle(scenario, (51,128,255), (int(boid.x), int(boid.y)), 7, 0)
+                    pygame.draw.circle(scenario, (0,0,200), (int(boid.x), int(boid.y)), 11, 0)
+                    pygame.draw.circle(scenario, (51,128,255), (int(boid.x), int(boid.y)), 7, 0)
                     pygame.draw.circle(scenario, (0,255,0), (int(boid.x), int(boid.y)), goalRadii,8)
                 # elif boid.type < 0 :  # Predators              
                 #     pygame.draw.circle(scenario, (0,0,0), (int(boid.x), int(boid.y)), 11, 0)
@@ -534,6 +540,9 @@ def main(argv):
 
                     # Draw collision radii
                     pygame.draw.circle(scenario, (255,0,0), (int(boid.x), int(boid.y)), int(crowdingThr),2)
+
+                    # Draw special agent detection radii
+                    pygame.draw.circle(scenario, (255,255,0), (int(boid.x), int(boid.y)), int(neighRadii*specialRFact),2)
 
             pygame.display.flip()
             pygame.time.delay(10)
@@ -611,7 +620,8 @@ def main(argv):
     # if t2GoalV == timeOutT: t2GoalV = 0.0
     # else: t2GoalV = 1.0/ ( (t2GoalV*1.0/timeOutT) + 1)    
 
-    numATgoalV = numATgoal*1.0/noBoids
+    numATgoalV = numATgoal*1.0/noBoids    
+    avgNumATgoalV = (avgNumATgoal/(numIter-iterINgoal))*1.0/noBoids
     # evoSuccessV = evoSuccess
     # print "After Normalizing : \n "
     # print "interCollV: %f" %interCollV
@@ -622,7 +632,7 @@ def main(argv):
     # print "evoSuccessV: %f" %evoSuccessV
     # raw_input()
 
-    fitVals = np.array([[interCollV, medGRadiiV, deltaTV,numATgoalV]])
+    fitVals = np.array([[interCollV, medGRadiiV, deltaTV,avgNumATgoalV]])
     return fitVals
 
 
