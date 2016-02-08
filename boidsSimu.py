@@ -307,7 +307,8 @@ def main(argv):
         numIter += 1
         if numIter == 2:
             # First time pause for user to visualize simulation parameters
-            if(numIter == 2): raw_input("... Press enter to start simulation ...")
+            if(visualON): 
+                if(numIter == 2): raw_input("... Press enter to start simulation ...")
             # Capture Initial start time of simulation
             initT = datetime.now().time()
         elif numIter > 1:
