@@ -5,7 +5,7 @@
         - Fitness f(x): [No. interAgent collisions, averageOfMedianOfGroupRadii, meanDeltaTofArrival,t2Goal]
 
 ********************************************************************************
-    Author: David C. Alvarez - Charris
+    Author: David Camilo. Alvarez - Charris
     Contact: david13.ing@gmail.com
 
     Created on Mon Jan 18 17:25:11 2016
