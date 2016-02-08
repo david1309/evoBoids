@@ -1,0 +1,99 @@
+def roulette (probRand,popSize,fitHist,generation):  
+    selectProb = np.divide(fitHist[:,-1,generation] , np.sum(fitHist[:,-1,generation]))    
+    interval = np.zeros((popSize+1,2))    
+    
+    # Create Roulette (Probabilities percentage for each individual)
+    for ind in range(popSize):
+        interval[ind,:] =[interval[ind-1,1]+0.01,interval[ind-1,1]+selectProb[ind]]
+        interval[0,0] = 0.0
+    
+    selected = []
+    while(len(selected)<popSize):
+        
+        randORroul = rand.uniform(0.0,1.0) 
+        if randORroul > probRand: # Roulette parent selection
+            dart = rand.uniform(0,1)
+
+            for ind in range(popSize):  
+                if(dart>=interval[ind,0] and dart<=interval[ind,1] and ind not in selected ):
+                    selected.append(ind)
+                    continue
+
+        else: # Random parent selection
+            while(1): # do - while loop
+                ind = rand.randint(0,popSize)
+
+                if(ind not in selected):
+                    selected.append(ind)
+                    break
+    print "Selected:"
+    print selected
+    return selected
+
+
+ROULETTE AS IN THEORY FPS WITH DEBBUGING:
+    while(len(selected)<numCouples):    
+        while(len(couple)<2):
+            randORroul = rand.uniform(0.0,1.0)
+            print randORroul             
+            if randORroul > probRand: # Roulette parent selection
+                while(1):
+                    dart = rand.uniform(0,1)                    
+                    ind = selectProb[1,np.where(selectProb[0,:]>=dart)[0][0]] # [0] -> select index list , [0] -> select first occurance
+                    print "dart: %f" %dart
+                    print "ind : %d" % ind
+                    raw_input ()
+                    if(ind not in couple):
+                        couple.append(ind)
+                        break              
+            else: # Random parent selection
+                while(1): # do - while loop
+                    ind = rand.randint(0,popSize)
+                    print "ind : %d" % ind
+                    raw_input ()
+                    if(ind not in couple):
+                        couple.append(ind)
+                        break
+            print "couple : "
+            print couple
+            raw_input ()
+        selected.append(couple)
+        couple = []
+        print " selected : "
+        print selected
+        raw_input ()
+    return selected
+
+
+
+GET BEST AGENTS DEBUGGIN VERSION
+    print fitHist[:,-1,0]
+    print fitHist[:,-1,1]
+    print fitHist[:,-1,2]
+    allFit = fitHist[:,-1,:]
+    BestFitPerGen,rowIxBests = allFit.max(0),fitHist[:,-1,:].argmax(0) # Find best individual per generation
+    print BestFitPerGen
+    print rowIxBests
+    bestFitALLgen,genIxBest= BestFitPerGen.max(0),BestFitPerGen.argmax(0) # Find the best among all generations
+    print bestFitALLgen
+    print genIxBest
+
+    bestIndPerGen = np.zeros((generations+1,len(geneRange)))
+    for gen in range(generations):
+        bestIndPerGen[gen,:] = popHist[rowIxBests[gen],:,gen]
+    bestIndPerGen[-3,:] = popHist[rowIxBests[genIxBest],:,genIxBest]
+    bestIndPerGen[-2,0] = genIxBest
+    bestIndPerGen[-1,0] = rowIxBests[genIxBest]
+    print popHist
+    print bestIndPerGen
+
+
+
+
+
+PLOT WITH TEXT
+  yVal = min(plt.gca().get_lines()[0].get_ydata())   
+        plt.text(generations-3,yVal-0.1*yVal,r'$\mu=%f,$' %mutProb[0], bbox=dict(facecolor='red', alpha=0.5))
+        
+
+
