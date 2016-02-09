@@ -260,18 +260,18 @@ def main():
     # User configuration of evolutionary parameters      
     else: 
         # Evolution Parameters
-        popSize = 20# Population Size
+        popSize = 10# Population Size
         generations = 35 # Number of Evolution generations
-        selectMethod = ['roulette',0.4] #['selectioMethod',probOfRandomParentSelection (i.e. dont use roulette)]
-        elitism =[1,int(math.ceil(0.20*popSize))]
-        crossProb = 0.85
-        mutProb = [0.065,0.70] # [prob.OfMutation , %OfMutation]
+        selectMethod = ['roulette',0.1] #['selectioMethod',probOfRandomParentSelection (i.e. dont use roulette)]
+        elitism =[1,int(math.ceil(0.40*popSize))]
+        crossProb = 0.5
+        mutProb = [0.01,0.40] # [prob.OfMutation , %OfMutation]
         numRept = 3 # No. of repetions each ind. is simulated, to obatain avg. fitness
         timeOutT = 10
        
         # Fitness Weights
-        interCollW = 33.0/100
-        medGRadiiW = 33.0/100
+        interCollW = 35.0/100
+        medGRadiiW = 31.0/100
         deltaTW = 17.0/100
         avgNumATgoal = 17.0/100
         fitWeights = interCollW, medGRadiiW, deltaTW,avgNumATgoal    

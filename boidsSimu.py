@@ -265,6 +265,8 @@ def main(argv):
     numATgoal = 0
     iterINgoal = 0
     avgNumATgoal = 0
+    countAvg = 0
+    iterWindow = 50
     ###    
     boidsNotATgoal = []
     boidsAtgoal = []
@@ -278,7 +280,7 @@ def main(argv):
     # leaderW = 1.0 #10 How much more cohesion and less repulsion will Leader have
     # predatorW = 12.0 # How much more repulsion will predator have
     # avoidW = 16.0 # How much more repulsion (how far away) will agents evade obstacles
-    specialRFact = 3.0 #max(scenarioSize) #8 Factor which increases the Radii at which Special Agents are considerder neighbors
+    specialRFact = 1.5 #max(scenarioSize) #8 Factor which increases the Radii at which Special Agents are considerder neighbors
     # 0: Created both, leader/predator Auto.Agents ; 1/-1: Creadte Auto.leader/Auto predator agents
     # autoAgents = 0 
     # lists that store controled and special agent object instances (needed in order to delete them when needed)
@@ -443,7 +445,10 @@ def main(argv):
             boidsAtgoal = [boid for boid in boids if(boid not in boidsNotATgoal)]
 
         numATgoal = noBoids - len(boidsNotATgoal) 
-        if iterINgoal: avgNumATgoal += numATgoal
+        if (numIter-iterINgoal) > iterWindow and iterINgoal: 
+            iterINgoal = numIter
+            countAvg += 1
+            avgNumATgoal += numATgoal
 
         if (numATgoal-numATgoalPast) > 0:
             numATgoalPast = numATgoal
@@ -621,8 +626,12 @@ def main(argv):
     # if t2GoalV == timeOutT: t2GoalV = 0.0
     # else: t2GoalV = 1.0/ ( (t2GoalV*1.0/timeOutT) + 1)    
 
-    numATgoalV = numATgoal*1.0/noBoids    
-    avgNumATgoalV = (avgNumATgoal/(numIter-iterINgoal))*1.0/noBoids
+    # numATgoalV = numATgoal*1.0/noBoids    
+    if countAvg != 0: avgNumATgoalV = (avgNumATgoal*1.0/countAvg)*1.0/noBoids
+    # if iterations at the end of the simu. arent sufficiente for a complete iterWindow
+    # to occur. Simply compute the avg, as the current number of agets at goal
+    else: avgNumATgoalV = numATgoal*1.0/noBoids 
+    print avgNumATgoalV*noBoids
     # evoSuccessV = evoSuccess
     # print "After Normalizing : \n "
     # print "interCollV: %f" %interCollV
