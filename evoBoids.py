@@ -257,6 +257,16 @@ def main():
         # _ _ _ _
         # _ _ _ _
 
+        elitism =[1,int(math.ceil(0.35*popSize))]
+        generations = 35
+        # Fitness Weights
+        interCollW = 40.0/100
+        medGRadiiW = 30.0/100
+        deltaTW = 15.0/100
+        avgNumATgoal = 15.0/100
+        fitWeights = interCollW, medGRadiiW, deltaTW,avgNumATgoal    
+        fitWeights = np.array([fitWeights])   
+
     # User configuration of evolutionary parameters      
     else: 
         # Evolution Parameters
