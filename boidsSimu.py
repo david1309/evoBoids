@@ -159,9 +159,9 @@ class Boid:
     "Perform movement: based on boids velocity (determined by the behavioral rules)"
     def move(self,maxVel):
         maxDeltaVel = 4.0
-        if self.type : # increase special autonomous agent speed            
-            self.velX += random.uniform(-maxDeltaVel,maxDeltaVel)
-            self.velY += random.uniform(-maxDeltaVel,maxDeltaVel)
+        # if self.type : # increase special autonomous agent speed            
+        #     self.velX += random.uniform(-maxDeltaVel,maxDeltaVel)
+        #     self.velY += random.uniform(-maxDeltaVel,maxDeltaVel)
 
         # for each timeStep of evaluating the rules, theres a maximum (saturation) displacement
         # value (boids cant move instantly from one place to the other, its got to me smooth)
@@ -585,7 +585,7 @@ def main(argv):
                      
 
         " Update boids position vector "
-        [ boid.move(maxVel) for boid in boids if (abs(boid.type) != 1 )]  
+        [ boid.move(maxVel) for boid in boids if (abs(boid.type) == 0 )]  
 
     " Simulation Exit "    
     # if (evoSuccess):
