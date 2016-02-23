@@ -74,7 +74,7 @@ class Boid:
             fact = 1.0 # used to modify Special Agents "cohesion force"
             if boid.type > 0: fact = leaderW #  leader positive reinforcement
             # if len(boids)>10 and type>0: fact = leaderW*leaderW # <-- C1!?                               
-            elif boid.type < 0: fact = 0 # predator negative reinforcement
+            # elif boid.type < 0: fact = 0 # predator negative reinforcement
 
             # Tab this 2 lines under the first 'if' and increase cohFact >=2 0 to have agents only follow LEADER
             # Calculate average distances to other boids
@@ -119,7 +119,7 @@ class Boid:
             fact = 1.0 # used to modify Special Agents "repulsion force"
             if boid.type > 0: fact = 1#leaderW # decreases radii at which leader is repulsed
             # if len(boids)>10 and type>0: fact /=100 # <-- C2!?
-            elif boid.type < 0 and boid.type>=-99 : fact = 1/predatorW  # increases radii at which predator is repulsed
+            # elif boid.type < 0 and boid.type>=-99 : fact = 1/predatorW  # increases radii at which predator is repulsed
             elif boid.type<=-99 : fact = 1/(avoidW/3)  # increases radii at which obstacle is avoided
 
             if distance < crowdingThr/fact:
@@ -144,7 +144,7 @@ class Boid:
         for boid in boids:  
             fact = 1.0 # used to modify Special Agents "ralignement force"
             if boid.type > 0: fact = 0 # dont follow leaders speed
-            elif boid.type < 0 and boid.type>=-99 : fact = 0 # dont follow predator speed  
+            # elif boid.type < 0 and boid.type>=-99 : fact = 0 # dont follow predator speed  
 
             avgX += boid.velX*fact
             avgY += boid.velY*fact  
@@ -157,7 +157,7 @@ class Boid:
 
 
     "Perform movement: based on boids velocity (determined by the behavioral rules)"
-    def move(self,maxVel):
+    def move(self,maxVel,visualON):
         maxDeltaVel = 4.0
         if self.type : # increase special autonomous agent speed            
             self.velX += random.uniform(-maxDeltaVel,maxDeltaVel)
@@ -170,13 +170,14 @@ class Boid:
             self.velX *= scaleFactor
             self.velY *= scaleFactor
 
-        # # Update Agents Position
-        # if (self.type == 1 or self.type == -1): # Controlled Special Agents
-        #     self.x,self.y = pygame.mouse.get_pos()            
-        # else:  # Autonomous casual agents  && Autonomous special agents
-
-        self.x += self.velX
-        self.y += self.velY
+        # Update Agents Position
+        # Check on visualON, because for mouse position capture
+        # the video system (visual simulation) must be on
+        if ( (self.type == 1 or self.type == -1) and visualON): # Controlled Special Agents
+            self.x,self.y = pygame.mouse.get_pos()            
+        else:  # Autonomous casual agents  && Autonomous special agents
+            self.x += self.velX
+            self.y += self.velY
 
         # Ensure boids  stay within the screen space -> if they are to close to 
         # the border, then change the Direction of the velocity vector, and change
@@ -194,6 +195,7 @@ class Boid:
 def main(argv): 
     
     "Simulation Evolutionary Parameters: neighRadii, cohW, repW', alignW, crowdingThr "
+    
     if len(argv)>1:
         neighRadii = float(argv[1]) # [150.0]Vecinity which each agents checks to apply behavioral rules
         crowdingThr = float(argv[5]) # [10.0]agents proximity before activation of "repulsion behavior"
@@ -206,7 +208,7 @@ def main(argv):
         # Special Agents weights
         leaderW = float(argv[6]) # 10 for alignment
         # Auxilliary Var's
-        visualON = argv[-2] # [1] 0: dont show visual environment ; 1: show visual environment
+        visualON = float(argv[-2]) # [1] 0: dont show visual environment ; 1: show visual environment
         timeOutT = float(argv[-1]) # [15] time in [s] after which simlation will abort 
     else: 
         print " ERROR: Please provide the simulations parameters"
@@ -234,31 +236,41 @@ def main(argv):
 
     "Dynamic parameters"   
     maxVel = 6.0*damp  # Max. delta speed that can be performed on each time step
- 
+    # cohW = cohW*(damp**2)
+    # repW = repW*(damp**2)
+    # alignW = alignW*(damp**2)
+    # leaderW= 0.50*damp*damp*leaderW
+    # timeOutT = int(timeOutT*1.0/damp)
+
     " Evolutionary Variables"
     # Auxilliary Var's       
     ellapsedT = 0 # simulation run time
     numIter = 0 # Number of positions updates
 
     # Main Evo. Var's
+    # 1
     interCollV = 0 # Measure Number of Inter Agent Collision
     interCollV_PerIter = 0 # Not cummulative, only per iteration
     casualAgentR # Artificial "Size" of casual agents and Radii among which a collision is determined
     collidedAgents = [] # Closed list that stores pairs of agents who have collided on the current iteration
 
+    #2
     medGRadiiV = 0.0# --> insideRadV = 0  # Measures the group level of compactness 
     medGRadiiV_PerIter = 0.0 # --> medGRadiiV_PerIter = 0 # Not cummulative, only per iteration
     avgPos = np.zeros((1,2)) # groups average position, useful to compute centroid
-    percRIn = 50.0/100 # % of groups radii, among which agents inside it will count as being compact
 
+    #3
     deltaTV = 0.0 
     deltaTV_PerIter = 0.0
     goalRadii = int(math.ceil((casualAgentR*1.25)*noBoids))
     factUS = 1E6
 
+    #4
     t2GoalV = timeOutT*1.0
+
+    #5
     numATgoalPast = 0
-    numATgoal = 0
+    numATgoal = 0    
     iterINgoal = 0
     avgNumATgoal = 0
     countAvg = 0
@@ -268,6 +280,8 @@ def main(argv):
     boidsAtgoal = []
     currentTGoal = 0
     firstGoal = 1
+
+    #6
     evoSuccess = 0
 
     "Special Agents and obstacles params. [Corresponds to self.type != 0]"
@@ -276,7 +290,7 @@ def main(argv):
     # leaderW = 1.0 #10 How much more cohesion and less repulsion will Leader have
     # predatorW = 12.0 # How much more repulsion will predator have
     # avoidW = 16.0 # How much more repulsion (how far away) will agents evade obstacles
-    specialRFact = 1.5 #max(scenarioSize) #8 Factor which increases the Radii at which Special Agents are considerder neighbors
+    specialRFact = 1.0 #max(scenarioSize) #8 Factor which increases the Radii at which Special Agents are considerder neighbors
     # 0: Created both, leader/predator Auto.Agents ; 1/-1: Creadte Auto.leader/Auto predator agents
     # autoAgents = 0 
     # lists that store controled and special agent object instances (needed in order to delete them when needed)
@@ -296,12 +310,12 @@ def main(argv):
     for i in range(noBoids):
         boids.append(Boid(0,strip,maxVel)) # casual agent 
 
-    controledAgent = Boid(2,0,maxVel)
+    controledAgent = Boid(1,0,maxVel)
     boids.append(controledAgent) # Add to list saving all Boid instances     
 
     " MAIN LOOP "
 
-    while ellapsedT<=timeOutT :
+    while ellapsedT<=timeOutT:# and not(evoSuccess):
         numIter += 1
         if numIter == 2:
             # First time pause for user to visualize simulation parameters
@@ -425,11 +439,9 @@ def main(argv):
         centroidAgent = Boid(0,0,maxVel) # trick used to be able to recycle Euclidian distance to boids method of Boid Class
         centroidAgent.x = GCentroid[0][0]
         centroidAgent.y = GCentroid[0][1]
-        ## Obtain groups dispersion (GRadii) 
+        ## Obtain groups dispersion 
         dist2Centroid = [centroidAgent.distance(boid) for boid in boids if (boid.type == 0)]
-        GRadii = max(dist2Centroid)
-        # --> insideRadV_PerIter = len([distBoids for distBoids in dist2Centroid if(distBoids<=GRadii*percRIn)])
-        # --> insideRadV +=insideRadV_PerIter
+        
         medGRadiiV_PerIter = np.median(np.array(dist2Centroid))
         medGRadiiV += medGRadiiV_PerIter
 
@@ -446,7 +458,7 @@ def main(argv):
             countAvg += 1
             avgNumATgoal += numATgoal
 
-        if (numATgoal-numATgoalPast) > 0:
+        if (numATgoal-numATgoalPast) > 0: # >0 to only count deltas when agents are going into the goal, not leaving it
             numATgoalPast = numATgoal
             pastTGoal = currentTGoal
             currentTGoal = datetime.now().time()
@@ -510,8 +522,7 @@ def main(argv):
             if(medGRadiiV_PerIter>widthCirc):        
                 pygame.draw.circle(scenario, (255,255,255), groupC, 6, 0)
                 pygame.draw.circle(scenario, (255,255,255), groupC, int(medGRadiiV_PerIter), widthCirc)
-            # --> pygame.draw.circle(scenario, (255,255,255), groupC, int(GRadii), 3)
-            # --> pygame.draw.circle(scenario, (0,255,0), groupC, int(GRadii*percRIn), 3)
+
 
             # Draw interval where casual voids are born
             pygame.draw.line(scenario,(255,0,255),(strip,0),(strip,height),4)
@@ -539,13 +550,19 @@ def main(argv):
                     pygame.draw.line(scenario, (255,255,255), groupC, (int(boid.x), int(boid.y)), 2)
                     
                     # Draw neighboord radii
-                    pygame.draw.circle(scenario, (0,255,0), (int(boid.x), int(boid.y)), int(neighRadii),2)
+                    widthCirc = 2             
+                    if(neighRadii>widthCirc):
+                        pygame.draw.circle(scenario, (0,255,0), (int(boid.x), int(boid.y)), int(neighRadii),widthCirc)
 
                     # Draw collision radii
-                    pygame.draw.circle(scenario, (255,0,0), (int(boid.x), int(boid.y)), int(crowdingThr),2)
+                    widthCirc = 2             
+                    if(crowdingThr>widthCirc):
+                        pygame.draw.circle(scenario, (255,0,0), (int(boid.x), int(boid.y)), int(crowdingThr),widthCirc)
 
                     # Draw special agent detection radii
-                    pygame.draw.circle(scenario, (255,255,0), (int(boid.x), int(boid.y)), int(neighRadii*specialRFact),2)
+                    widthCirc = 2             
+                    if(neighRadii*specialRFact>widthCirc):
+                        pygame.draw.circle(scenario, (255,255,0), (int(boid.x), int(boid.y)), int(neighRadii*specialRFact),2)
 
             pygame.display.flip()
             pygame.time.delay(10)
@@ -585,7 +602,7 @@ def main(argv):
                      
 
         " Update boids position vector "
-        [ boid.move(maxVel) for boid in boids if (abs(boid.type) != 1 )]  
+        [boid.move(maxVel,visualON) for boid in boids]# if (abs(boid.type) == 0 )]  
 
     " Simulation Exit "    
     # if (evoSuccess):
@@ -628,7 +645,8 @@ def main(argv):
     # if iterations at the end of the simu. arent sufficiente for a complete iterWindow
     # to occur. Simply compute the avg, as the current number of agets at goal
     else: avgNumATgoalV = numATgoal*1.0/noBoids 
-    print avgNumATgoalV*noBoids
+    # print avgNumATgoalV*noBoids
+    
     # evoSuccessV = evoSuccess
     # print "After Normalizing : \n "
     # print "interCollV: %f" %interCollV

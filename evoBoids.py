@@ -11,90 +11,21 @@
     Created on Mon Jan 18 17:25:11 2016
 ********************************************************************************
 """
-"""
-evoLog_try1 --> specialRFact = 2.5 ; std = 30 ; deltaTV average obtained by numATgoalW  
-                popSize = 5# Population Size
-                generations = 4 # Number of Evolution generations
-                selectMethod = ['roulette',0.5] #['selectioMethod',probOfRandomParentSelection (i.e. dont use roulette)]
-                elitism =[1,int(math.ceil(0.20*popSize))]
-                crossProb = 0.85
-                mutProb = [0.08,0.7] # [prob.OfMutation , %OfMutation]
-                numRept = 3 # No. of repetions each ind. is simulated, to obatain avg. fitness
-                timeOutT = 7
-                
-                # Fitness Weights
-                interCollW = 25.0/100
-                medGRadiiW = 35.0/100
-                deltaTW = 25.0/100
-                # t2GoalW = 1.0/6
-                numATgoalW = 15.0/100
 
-evoLog_try2 --> specialRFact = 1.75 ; Gaussian medGRadiiV w/ ideal = 100, std = 40 ; 
-                deltaTV average obtained by numBoids
-
-                popSize = 10# Population Size
-                generations = 10 # Number of Evolution generations
-                selectMethod = ['roulette',0.5] #['selectioMethod',probOfRandomParentSelection (i.e. dont use roulette)]
-                elitism =[1,int(math.ceil(0.20*popSize))]
-                crossProb = 0.85
-                mutProb = [0.08,0.7] # [prob.OfMutation , %OfMutation]
-                numRept = 3 # No. of repetions each ind. is simulated, to obatain avg. fitness
-                timeOutT = 10
-               
-                # Fitness Weights
-                interCollW = 30.0/100
-                medGRadiiW = 40.0/100
-                deltaTW = 20.0/100
-                # t2GoalW = 1.0/6
-                numATgoalW = 10.0/100
-
-evoLog_try3 --> Used evoLog_try2 as populationSeed
-evoLog_try4 --> Used evoLog_try3 as populationSeed + below changes:
-                generations = 20
-                selectMethod = ['roulette',0.2] #['selectioMethod',probOfRandomParentSelection (i.e. dont use roulette)]
-                elitism =[1,int(math.ceil(0.3*popSize))]
-                crossProb = 0.95
-                mutProb = [0.2,0.8] # [prob.OfMutation , %OfMutation]
-
-evoLog_try5 --> NO PREVIOUS SEEDING
-                # Simu Params: noBoids = 15 ; maxVel = 6.0 ; specialRFact = 1.75
-                # MedGRadii Calculation:  idealGRadii = 100 ; std = 40
-                # Evo Params:
-
-                popSize = 15# Population Size
-                generations = 25 # Number of Evolution generations
-                selectMethod = ['roulette',0.35] #['selectioMethod',probOfRandomParentSelection (i.e. dont use roulette)]
-                elitism =[1,int(math.ceil(0.20*popSize))]
-                crossProb = 0.85
-                mutProb = [0.05,0.60] # [prob.OfMutation , %OfMutation]
-                numRept = 3 # No. of repetions each ind. is simulated, to obatain avg. fitness
-                timeOutT = 10
-                
-                # Fitness Weights
-                interCollW = 27.0/100
-                medGRadiiW = 38.0/100
-                deltaTW = 20.0/100
-                numATgoalW = 15.0/100
-
-                # IMPORTANT CHANGE OF INTERVALS:
-                neighRadii = [0,casualAgentR*10]
-                cohW = [0.0,1.0]
-                repW = [0.0,1.0]
-                alignW = [0.0,1.0]
-                crowdingThr = [0.0,casualAgentR*10]
-                leaderW = [0.001,10.0]
-  
-"""
 import random as rand
 import numpy as np # array and matrix manipulation
 import matplotlib.pyplot as plt # plotting graphs
 import pickle # Saving data to log file
-import boidsSimu # Boid simulator library
+
+
+import boidsSimuS # Static Leader Boid simulator library
+import boidsSimuP # Predator Boid simulator library
+boidsSimu = boidsSimuS
+
+
 import sys,math
 from datetime import datetime 
 
-# Simulation Scenario size (used for evolutionary genes ranges)
-scenarioSize = width,height = 800,600 #scenario dimensions
 casualAgentR = 10.0
 
 " Create Individuals -> each posible solution"
@@ -173,6 +104,10 @@ def evolution (pop,fitWeights,geneRange,numRept,selectMethod,elitism,crossProb,m
                 newPop[ind,gene] = newPop[ind,gene] + \
                                    rand.uniform(geneRange[gene][0],geneRange[gene][1]*mutProb[1])*rand.random()
 
+                #  Limit Mutation changes within established range of values
+                if newPop[ind,gene] < geneRange[gene][0]: newPop[ind,gene] = geneRange[gene][0]
+                elif newPop[ind,gene] > geneRange[gene][1]: newPop[ind,gene] = geneRange[gene][1]
+
     return newPop,fitHistAux
 
 " Selection Operator: Fitness Propotionate Selection (FPS) "
@@ -240,7 +175,7 @@ def main():
     global timeOutT # time in [s] after which simulation will abort 
     if popSeeding: 
 
-        popSeedFile = raw_input("Press ENTER to Load %s logFile or input the number of the desired logFile: " % logPath[-len("evoLog_tryN.pckl"):-1]) 
+        popSeedFile = raw_input("Press ENTER to Load %s logFile or input the number of the desired logFile: " % logPath[-len("PevoLog_tryN.pckl"):-1]) 
 
         if popSeedFile: 
             logPath = list(logPath)
@@ -256,34 +191,32 @@ def main():
         # Copy and Paste Evolution parameters from below, to @Overide the loaded ones
         # _ _ _ _
         # _ _ _ _
-
-        elitism =[1,int(math.ceil(0.35*popSize))]
-        generations = 35
-        # Fitness Weights
-        interCollW = 40.0/100
-        medGRadiiW = 30.0/100
-        deltaTW = 15.0/100
-        avgNumATgoal = 15.0/100
-        fitWeights = interCollW, medGRadiiW, deltaTW,avgNumATgoal    
-        fitWeights = np.array([fitWeights])   
+        popSeeding = 0 # causes to load seed's evoParams, BUT starts evolution from scratch (not from the last seed's population) 
+        
+        popSize = 15
+        generations = 20
+        # selectMethod = ['roulette',0.25] #['selectioMethod',probOfRandomParentSelection (i.e. dont use roulette)]
+        # elitism =[1,int(math.ceil(0.35*popSize))]
+        crossProb = 0.50
+        mutProb = [0.06,0.50] # [prob.OfMutation , %OfMutation] 
 
     # User configuration of evolutionary parameters      
     else: 
         # Evolution Parameters
         popSize = 10# Population Size
-        generations = 35 # Number of Evolution generations
-        selectMethod = ['roulette',0.1] #['selectioMethod',probOfRandomParentSelection (i.e. dont use roulette)]
-        elitism =[1,int(math.ceil(0.40*popSize))]
-        crossProb = 0.5
-        mutProb = [0.01,0.40] # [prob.OfMutation , %OfMutation]
+        generations = 15 # Number of Evolution generations
+        selectMethod = ['roulette',0.25] #['selectioMethod',probOfRandomParentSelection (i.e. dont use roulette)]
+        elitism =[1,int(math.ceil(0.35*popSize))]
+        crossProb = 0.80
+        mutProb = [0.025,0.50] # [prob.OfMutation , %OfMutation]
         numRept = 3 # No. of repetions each ind. is simulated, to obatain avg. fitness
         timeOutT = 10
        
         # Fitness Weights
         interCollW = 35.0/100
-        medGRadiiW = 31.0/100
-        deltaTW = 17.0/100
-        avgNumATgoal = 17.0/100
+        medGRadiiW = 25.0/100
+        deltaTW = 20.0/100
+        avgNumATgoal = 20.0/100
         fitWeights = interCollW, medGRadiiW, deltaTW,avgNumATgoal    
         fitWeights = np.array([fitWeights])       
 
@@ -319,6 +252,9 @@ def main():
     plt.grid(True)
     plt.pause(0.05)
     plt.gca().set_xlim(0,generations-1)
+    plt.gca().set_ylim(0,1)
+    plt.yticks(np.arange(0.0,1.0+0.25,0.1))
+    plt.xticks(np.arange(0,generations+1,1))
     plt.ion()
     plotGen = np.empty((0))
 
@@ -327,10 +263,12 @@ def main():
     initT = datetime.now().time()
 
     # Initial population (Either from the lastGenerationpopulation OR bestIndOfAllGenerations
-    if popSeeding: popHist[:,:,0] = lastPop # bestIndPerAll # Seed Init. Population
-    else : popHist[:,:,0]  = population(popSize,geneRange) # Random Init. population
-    # "My" ideal poputaion
-    # popHist[:,:,0] = kron( np.ones((popSize,len(geneRange))) , np.array([[150.0, 4.0/100, 23.0/100, 20.0/100, casualAgentR*3, 17.0]]) )
+    if popSeeding: 
+        popHist[:,:,0] = lastPop # bestIndPerAll # Seed Init. Population
+        print "seeded init pop"
+    else : 
+        popHist[:,:,0]  = population(popSize,geneRange) # Random Init. population
+        print "random init pop"
 
     for generation in range(generations-1):
 
