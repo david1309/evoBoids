@@ -46,8 +46,8 @@ class Boid:
 
     def __init__ (self, type, strip, maxVel):
         # Casual Agent : set pos/vel randonmly ; Special Agents: pos == center of screen and vel == maxSpeed %
-        self.x = random.randint(0,strip)*(type==0) + (width)*(type!=0)
-        self.y = random.randint(0,height)*(type==0)  + (height/2)*(type!=0)
+        self.x = random.randint(0,strip)#*(type==0) + (width)*(type!=0)
+        self.y = random.randint(0,height)#*(type==0)  + (height/2)*(type!=0)
         self.velX = float(random.uniform(-maxVel,maxVel)) 
         self.velY = float(random.uniform(-maxVel,maxVel))      
         self.type = type          
@@ -150,7 +150,7 @@ class Boid:
 
 
     "Perform movement: based on boids velocity (determined by the behavioral rules)"
-    def move(self,maxVel,maxDeltaVel,speedBoost,visualON):
+    def move(self,maxVel,maxDeltaVel,velBoost,visualON):
         
         if self.type>1 : # increase special autonomous agent speed            
             self.velX += random.uniform(-maxDeltaVel,maxDeltaVel)
@@ -175,16 +175,21 @@ class Boid:
         # Ensure boids  stay within the screen space -> if they are to close to 
         # the border, then change the Direction of the velocity vector, and change
         # its magnitud by a random factor between [0.0,1.0]
-        border = 25 # how close from the borders does one wants the boids to get
-        bordFact = 100.0
+
+        # IMPORTANT: if the the 'border' is to big, casuaal agents might take cover on 
+        # the borders and when the predator attemps to hunt them, the border repulsion 
+        # wont let him reach its prey. Causing the predator to never hunt the casual 
+        # agent and stay "infinetely" bumping against the border
+
+        border = casualAgentR # how close from the borders does one wants the boids to get
+        bordFact = 10000.0
         if self.x < border and self.velX< 0: self.velX = -self.velX*random.random()*bordFact #generates val in [0.0,1.0]
         if self.x > (width - border*2) and self.velX> 0: self.velX= -self.velX* random.random()*bordFact
         if self.y < border and self.velY < 0: self.velY = -self.velY * random.random()*bordFact
         if self.y > (height - border*2) and self.velY > 0: self.velY = -self.velY * random.random()*bordFact 
 
     "Exclusive predatorAgent method: based on the preys he's got on sight, compute predators displacement"
-    def predatorHunt(self,neighPredator,maxDeltaVel,huntCoh,perc2hunt,noBoids):
-
+    def predatorHunt(self,neighPredator,maxDeltaVel,huntCoh,deltaBoost,velBoostORI):              
         # if NO prey in sight or seen preys are to few --> random exploration
         if not neighPredator:
             self.velX += random.uniform(-maxDeltaVel,maxDeltaVel)
@@ -207,6 +212,11 @@ class Boid:
 
             # Move predators to preys centroid
             self.cohesion(preysCentroid,huntCoh,0,0)
+
+        # Update predators speed boost based on number of preys
+        if neighPredator: velBoost = -deltaBoost*len(neighPredator) + (velBoostORI+deltaBoost)
+        else: velBoost = velBoostORI        
+        return  velBoost
 
 " Main Code "       
 def main(argv): 
@@ -237,30 +247,40 @@ def main(argv):
         pygame.display.set_caption('Boids Simulation')
         sceneColorOri = (0,100,160) # Initial background color
         sceneColor = [sceneColorOri[0],sceneColorOri[1],sceneColorOri[2]] # stores current BG color
-        deltC = 10 # how much does the BG color change on each interation
-        varC = [1,0,0] # variable used to increase/decrase each [R,G,B] color 
+        deltC = 15 # how much does the BG color change on each interation
+        varC = [1,0,0] # variable used to increase/decrase each [R,G,B] color
+
+        # Time after casual agents extinction that hte game will shut down
+        extinctEllapsedT = 0
+        extinctTimeOutT = 4
+        stableC = 0 # if BG color is at desired value, STOP changing it w/ f(x)'updateBG()'
+    
+    "Static Parameters"
+    noBoids = 15
+    boids = [] # list containing all the agents
     strip = width # Strip among which the init.pos of casual agent is going to be randomlly selected
 
-    "Static Parameters"
-    damp = 1.0
-    noBoids = 25
-    boids = [] # list containing all the agents
-
     specialRFact = 1.0 # = max(scenarioSize) #= 8 Factor which increases the Radii at which Special Agents are considerder neighbors 
-    maxVel = 8.0*damp  # Max. delta speed that can be performed on each time step
+    maxVel = 12.0  # Max. delta speed that can be performed on each time step
     specialRFact = 1.0 # = max(scenarioSize) #= 8 Factor which increases the Radii at which Special Agents are considerder neighbors
 
     predSight = 150
     predKillZone = casualAgentR*3
     huntCoh = 4.0/100 # How attracted is the predator towards the preysCentroid
+
+    # Special Agent speed boost is proportional to num of preys in predSight
+    # y = m.X + b -> velBoost = -deltaBoost*numPreyINSight + (velBoostORI+deltaBoost)
     velBoost = 1.5
-        # when Special Agents are automous (controlled by code), determines the maximum change in speed at each time step
-    maxDeltaVel = 4.0
+    velBoostORI = velBoost
+    deltaBoost = 0.1
+    # when Special Agents are automous (controlled by code), determines the maximum change in speed at each time step
+    maxDeltaVel = 6.0
+    extinctSwarm = 0 # 0: A live casual agents ; 1: all casual agents have been hunted
 
     " Evolutionary Variables"
     # Auxilliary Var's       
     ellapsedT = 0 # simulation run time
-    numIter = 0 # Number of positions updates
+    numIter = 0 # Number of positions updates    
     # evoSuccess = 0
 
     # # Main Evo. Var's
@@ -290,7 +310,7 @@ def main(argv):
     # iterWindow = 50
     # ###    
     boidsNotATgoal = []
-    boidsAtgoal = []
+    # boidsAtgoal = []
     # currentTGoal = 0
     # firstGoal = 1
 
@@ -309,7 +329,7 @@ def main(argv):
         boids.append(Boid(0,strip,maxVel)) # casual agent 
 
     leaderAgent = []
-    leaderAgent = Boid(2,0,maxVel)
+    leaderAgent = Boid(1,0,maxVel)
     boids.append(leaderAgent) # Add to list saving all Boid instances     
     predatorAgent = []    
     predatorAgent = Boid(-2,0,maxVel)
@@ -319,9 +339,10 @@ def main(argv):
     # stores casualAgents that are still alive --> copy objects not pointers, to be able 
     # to remove elements from the copy wo/affecting the original list of objects)
     livingBoids = copy.copy(boids) 
+    numSpecial = sum([1 for boid in livingBoids if(boid.type != 0)])
 
     " MAIN LOOP "
-    while ellapsedT<=timeOutT:# and not(evoSuccess):
+    while ellapsedT<=timeOutT and extinctEllapsedT <= extinctTimeOutT:
         numIter += 1
         if numIter == 2:
             # First time pause for user to visualize simulation parameters
@@ -401,7 +422,7 @@ def main(argv):
 
             " Apply predatorHunting behavior based on predators current preys "
             if boid.type<-1 and boid.type>=-99: # Only apply rule to Predator Agents
-                boid.predatorHunt(neighPredator,maxDeltaVel,huntCoh,perc2hunt,noBoids)
+                velBoost = boid.predatorHunt(neighPredator,maxDeltaVel,huntCoh,deltaBoost,velBoostORI)
 
         #   # Obtain Number of Agents inside a percentage of the groups position dispersion
         # avgPos[0,0] = sum([boid.x for boid in boids if (boid.type == 0)])
@@ -426,7 +447,7 @@ def main(argv):
         if numIter == 1: boidsNotATgoal = [boid for boid in boids if(boid.type==0)]
         else:  
             boidsNotATgoal = [boid for boid in boids if(leaderAgent.distance(boid) >= goalRadii)]
-            boidsAtgoal = [boid for boid in boids if(boid not in boidsNotATgoal)]
+            # boidsAtgoal = [boid for boid in boids if(boid not in boidsNotATgoal)]
 
         # numATgoal = noBoids - len(boidsNotATgoal) 
         # if (numIter-iterINgoal) > iterWindow and iterINgoal: 
@@ -452,7 +473,20 @@ def main(argv):
         # if numATgoal == noBoids and not evoSuccess:
         #     currentT= datetime.now().time()
         #     t2GoalV = (currentT.hour-initT.hour)*3600.0 + (currentT.minute-initT.minute)*60.0 + (currentT.second-initT.second)*1.0
-        #     evoSuccess = 1          
+        #     evoSuccess = 1      
+        # If ALL casual agents have been hunted == GAME OVER
+        if not (len(livingBoids) - numSpecial):
+            if not extinctSwarm:
+                extinctionT = currentT
+
+                sceneColor = [255,255,255]
+                sceneColorOri = (153,15,15)
+                changeBG = 1
+
+            extinctSwarm = 1  
+            extinctEllapsedT = (currentT.hour - extinctionT.hour)*3600.0 + (currentT.minute-extinctionT.minute)*60.0 + (currentT.second-extinctionT.second)
+      
+
 
 
         " Simu. Visualization: Update virtual boids display "
@@ -465,34 +499,31 @@ def main(argv):
             #         pygame.draw.circle(scenario,(0,255,0),(pos.x,pos.y),7,0)        # Update Dynamic Color Background visualization    
             
             # paint BG to erase past objects
-            # sceneColor = updateBG(sceneColor,sceneColorOri,deltC,varC)[0]
+            
+            if extinctSwarm: 
+                sceneColor = updateBG(sceneColor,sceneColorOri,deltC,varC)[0]
+                if sceneColor[0] == sceneColorOri[0] or stableC:
+                    stableC = 1
+                    sceneColor[0] = sceneColorOri[0]
             scenario.fill(sceneColor) # fill scenario with RGB color
 
-            "Insert Simulation parameters on screen scenario"
-            ## text characteristics
-            txtColor = (255,255,255)
-            stdFont = pygame.font.Font('freesansbold.ttf',15)
-            txtPos = (int(width/2),int(height/2))
-
-            ## texts
-            neighRadiiTXT = "neighRadii : " + str(int(neighRadii))
-            cohWTXT = "cohW : " + str(int(cohW*100)) + "%"
-            repWTXT = "repW : " + str(int(repW*100)) + "%"
-            alignWTXT = "alignW : " + str(int(alignW*100)) + "%"
-            crowdingThrTXT = "crowdingThr : " + str(int(crowdingThr))
-            leaderWTXT = "leaderW : " + str(int(leaderW))
-            predatorWTXT = "predatorW : " + str(int(predatorW))
-            geneRangeTXT = [neighRadiiTXT,cohWTXT,repWTXT,alignWTXT,crowdingThrTXT,leaderWTXT,predatorWTXT] 
-
-            ## texts rederings
-            offSet = 0
-            for txt in geneRangeTXT:
-                txtSurf = stdFont.render(txt, True, txtColor)
-                txtRect = txtSurf.get_rect()
-                txtRect.center = (txtPos[0],txtPos[1]+offSet)
-                offSet += 20
-                scenario.blit(txtSurf,txtRect)
-
+            if not extinctSwarm:
+                "Insert Simulation parameters on screen scenario"                
+                ## texts
+                neighRadiiTXT = "neighRadii : " + str(int(neighRadii))
+                cohWTXT = "cohW : " + str(int(cohW*100)) + "%"
+                repWTXT = "repW : " + str(int(repW*100)) + "%"
+                alignWTXT = "alignW : " + str(int(alignW*100)) + "%"
+                crowdingThrTXT = "crowdingThr : " + str(int(crowdingThr))
+                leaderWTXT = "leaderW : " + str(int(leaderW))
+                predatorWTXT = "predatorW : " + str(int(predatorW))
+                geneRangeTXT = [neighRadiiTXT,cohWTXT,repWTXT,alignWTXT,crowdingThrTXT,leaderWTXT,predatorWTXT] 
+                
+                fontSize = 15
+                drawTXT (geneRangeTXT,fontSize,scenario)
+            else:
+                fontSize = 30
+                drawTXT (["GAME OVER"],fontSize,scenario)
             " Draw Groups Centroid,  Compactness Radii (Median Radii) "
             # widthCirc = 3  
             # groupC = (GCentroid[0][0],GCentroid[0][1])
@@ -524,7 +555,7 @@ def main(argv):
                     if boid in huntedBoids:
                         agentColor = (0,0,0)                     
                         pygame.draw.circle(scenario, agentColor, (int(boid.x), int(boid.y)), int(casualAgentR),0)
-                        colorRing = (255,0,0) 
+                        colorRing = (225,0,0) 
                         pygame.draw.circle(scenario, colorRing, (int(boid.x), int(boid.y)), int(casualAgentR),int(casualAgentR/2))
                     
                     elif boid in livingBoids:
@@ -587,7 +618,7 @@ def main(argv):
         #             sys.exit()
                      
         " Update boids position vector "
-        [boid.move(maxVel,maxDeltaVel,visualON) for boid in livingBoids] # if (abs(boid.type) == 0 )]  
+        [boid.move(maxVel,maxDeltaVel,velBoost,visualON) for boid in livingBoids] # if (abs(boid.type) == 0 )]  
 
     " Simulation Exit "    
     # if (evoSuccess):
@@ -653,6 +684,21 @@ def main(argv):
 #         self.y = pos[1]
 #         self.type = -100 # obstacles -> self.type <=-100
 
+" Function which draws a list of text in the pygame window "
+def drawTXT(txts,fontSize,scenario):
+    ## text characteristics
+    txtColor = (255,255,255)
+    stdFont = pygame.font.Font('freesansbold.ttf',fontSize)
+    txtPos = (int(width/2),int(height/2))
+
+    ## texts rederings
+    offSet = 0
+    for txt in txts:
+        txtSurf = stdFont.render(txt, True, txtColor)
+        txtRect = txtSurf.get_rect()
+        txtRect.center = (txtPos[0],txtPos[1]+offSet)
+        offSet += 20
+        scenario.blit(txtSurf,txtRect)
 
 " Generates the sequence of step that enable the background to change color"
 " Increases R -> then G -> then B all until 255 ; then decreases them in the same"
