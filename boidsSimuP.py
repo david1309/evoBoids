@@ -37,9 +37,12 @@ from datetime import datetime # for keeping time of algo runtime
 import time # time.sleep([s]) OR raw_input("Press Enter to continue...")
 import copy # used to copy list of objects content and NOT's its pointer
 
+"GLOBAL VARIABLES"
 pygame.init()
 scenarioSize = width,height = 1350,700 #scenario dimensions
 casualAgentR = 10
+huntPersistOri = 15
+# persistTori = 300
 
 " Class containing all the Boid behaviors "
 class Boid: 
@@ -51,7 +54,15 @@ class Boid:
         self.velX = float(random.uniform(-maxVel,maxVel)) 
         self.velY = float(random.uniform(-maxVel,maxVel))      
         self.type = type
+
+        # This attributes are ONLY used by the PREDATOR agent (correct  programming 
+        # practice would be to create a child class inheriting'Boid' ... but :| :|) 
         
+        self.neighPredator = [] # list which stores predators preys  
+        # Max Val -> Predator hunts ; ZeroVal -> abandons hunting and re-starts random exploration
+        self.huntPersist = huntPersistOri
+        
+
     " Compute (Euclidian) distance from self - to - 'boid' "
     def distance (self,boid):
         distX = self.x - boid.x
@@ -187,10 +198,12 @@ class Boid:
         if self.y < border and self.velY < 0: self.velY = -self.velY * random.random()*bordFact
         if self.y > (height - border*2) and self.velY > 0: self.velY = -self.velY * random.random()*bordFact 
 
+
     "Exclusive predatorAgent method: based on the preys he's got on sight, compute predators displacement"
-    def predatorHunt(self,neighPredator,maxDeltaVel,huntCoh,deltaBoost,velBoostORI):              
-        # if NO prey in sight or seen preys are to few --> random exploration
-        if not neighPredator:
+    def predatorHunt(self,maxDeltaVel,huntCoh,deltaBoost,velBoostORI):          
+        # if NO prey in sight --> random exploration behavior
+        # If huntPersist reaches minumum level (0), Predator surrenders and activates --> random exploration behavior
+        if not self.neighPredator or not self.huntPersist:
             self.velX += random.uniform(-maxDeltaVel,maxDeltaVel)
             self.velY += random.uniform(-maxDeltaVel,maxDeltaVel)
 
@@ -199,10 +212,10 @@ class Boid:
             # Compute preys centroid
             avgPos = np.zeros((1,2)) # groups average position, useful to compute centroid
             # Obtain Number of Agents inside a percentage of the groups position dispersion
-            avgPos[0,0] = sum([prey.x for prey in neighPredator ])
-            avgPos[0,1] = sum([prey.y for prey in neighPredator ])
+            avgPos[0,0] = sum([prey.x for prey in self.neighPredator ])
+            avgPos[0,1] = sum([prey.y for prey in self.neighPredator ])
 
-            GCentroid = avgPos/len(neighPredator) # preyGroup centroid 
+            GCentroid = avgPos/len(self.neighPredator) # preyGroup centroid 
             GCentroid = GCentroid.astype(int).tolist()# cast from float to int, and then to python list
             preysCentroid = Boid(0,0,0) # trick used to be able to recycle cohesion method of Boid Class
             preysCentroid.x = GCentroid[0][0]
@@ -213,9 +226,18 @@ class Boid:
             self.cohesion(preysCentroid,huntCoh,0,0)
 
         # Update predators speed boost based on number of preys
-        if neighPredator: velBoost = -deltaBoost*len(neighPredator) + (velBoostORI+deltaBoost)
+        # if numOfPreys different from zero, the linear equation works (if not, force it to original value)
+        if self.neighPredator: velBoost = -deltaBoost*len(self.neighPredator) + (velBoostORI+deltaBoost)
         else: velBoost = velBoostORI  
-        velBoost = velBoost*(velBoost>=0) + 0*(velBoost<0)      
+        velBoost = velBoost*(velBoost>=0) + 0*(velBoost<0)
+
+        # When there are few preys, predator tends to "bounce arround" these preys and 
+        # never hunt them --> Reduce velBoost propotionally to the time (persistance level)
+        # spent hunting them. Providing the predator a more fine/precise attack movement.
+        # Increasing its chances to hunt the preys and get out of the "bounce arround" loop
+        if len(self.neighPredator) <= 2:
+            velBoost *= (self.huntPersist/huntPersistOri)
+
         return  velBoost
 
 " Main Code "       
@@ -251,12 +273,12 @@ def main(argv):
         varC = [1,0,0] # variable used to increase/decrase each [R,G,B] color
 
         # Time after casual agents extinction that hte game will shut down
-        endGameEllapsedT = 0
-        endGameTimeOutT = 6
+        endGameEllapsedT = 0 # DONT change THIS
+        endGameTimeOutT = 5
         stableC = 0 # if BG color is at desired value, STOP changing it w/ f(x)'updateBG()'
     
     " General Parameters"
-    noBoids = 20
+    noBoids = 3
     boids = [] # list containing all the agents
     strip = width # Strip among which the init.pos of casual agent is going to be randomlly selected
     specialRFact = 1.0 # = max(scenarioSize) #= 8 Factor which increases the Radii at which Special Agents are considerder neighbors 
@@ -265,6 +287,7 @@ def main(argv):
 
     " Predator Parameters "
     predSight = 150
+    neightPredatorTemp = []
     predKillZone = casualAgentR*3
     huntCoh = 4.0/100 # How attracted is the predator towards the preysCentroid
 
@@ -340,6 +363,7 @@ def main(argv):
     # stores casualAgents that are still alive --> copy objects not pointers, to be able 
     # to remove elements from the copy wo/affecting the original list of objects)
     livingBoids = copy.copy(boids) 
+    predatorAgent
     numSpecial = sum([1 for boid in livingBoids if(boid.type != 0)])
 
     " MAIN LOOP "
@@ -371,7 +395,7 @@ def main(argv):
         for boid in livingBoids :# for each boid
 
             neighBoids = []# list which stores boid neighboors
-            neighPredator = []# list which stores predators preygs
+            neighPredatorTemp = []# list which temporarelly stores predators preys
 
             # CHECK: boid's distance with the other boids
             for otherBoid in livingBoids:
@@ -384,7 +408,7 @@ def main(argv):
                 # be considered a neighbor 
                 if otherBoid.type: fact = specialRFact
 
-                # Evaluate casualAgents neighborhood and Collisions 
+                " Evaluate casualAgents neighborhood and Collisions "
                 if (dist2neigh < neighRadii*fact) and not boid.type:                    
                     neighBoids.append(otherBoid) # add to neighbors list
 
@@ -397,12 +421,29 @@ def main(argv):
                     #         interCollV_PerIter += 1
                     #         collidedAgents.append((boid,otherBoid)) 
 
-                # Evaluate predatorAgent preys, ONLY those that are casual agents
-                if (dist2neigh < predSight) and (boid.type<-1 and boid.type>=-99) and not otherBoid.type and not endGame:
+                " Evaluate predatorAgent preys, ONLY those that are casual agents "
+                if (boid.type<-1 and boid.type>=-99)  and (dist2neigh < predSight) and not otherBoid.type and not endGame:
                     if(dist2neigh < predKillZone): 
                         livingBoids.remove(otherBoid) # update survivors
                         huntedBoids.append(otherBoid) # update casualties
-                    else: neighPredator.append(otherBoid)   
+                    else: neighPredatorTemp.append(otherBoid)   
+             
+            
+            if (boid.type<-1 and boid.type>=-99):
+
+                # If predators is  trying to hunt the same casualBoids gradually reduce its persistance level 
+                #(ignore the definition of "same" when no preys are being hunted i.e. []) 
+                deltaPersit = 0.1
+                if neighPredatorTemp == boid.neighPredator and neighPredatorTemp:
+                    if boid.huntPersist - deltaPersit >= 0.0: boid.huntPersist -= deltaPersit # if it isnt already zero, reduce it         
+                    boid.huntPersist  = round(boid.huntPersist,2)
+                # if predator finds a different group of preys, re-activate hunting behavior
+                else:
+                    boid.huntPersist = huntPersistOri 
+
+                # Update predators list of preys
+                boid.neighPredator = neighPredatorTemp
+
 
             # # CHECK: neighboring obstacles
             # neighAvoid = [] # list which stores obstacle neighboors
@@ -423,7 +464,7 @@ def main(argv):
 
             " Apply predatorHunting behavior based on predators current preys "
             if boid.type<-1 and boid.type>=-99: # Only apply rule to Predator Agents
-                velBoost = boid.predatorHunt(neighPredator,maxDeltaVel,huntCoh,deltaBoost,velBoostORI)
+                velBoost = boid.predatorHunt(maxDeltaVel,huntCoh,deltaBoost,velBoostORI)
 
         #   # Obtain Number of Agents inside a percentage of the groups position dispersion
         # avgPos[0,0] = sum([boid.x for boid in boids if (boid.type == 0)])
@@ -533,8 +574,9 @@ def main(argv):
                 crowdingThrTXT = "crowdingThr : " + str(int(crowdingThr))
                 leaderWTXT = "leaderW : " + str(int(leaderW))
                 predatorWTXT = "predatorW : " + str(int(predatorW))
-                velBoostTXT = "velBoost : " + str(float(velBoost))
-                geneRangeTXT = [neighRadiiTXT,cohWTXT,repWTXT,alignWTXT,crowdingThrTXT,leaderWTXT,predatorWTXT,velBoostTXT] 
+                velBoostTXT = "velBoost : " + str(float(round(velBoost,2)))
+                huntPersistTXT = "huntPersist : " + str(float(predatorAgent.huntPersist))
+                geneRangeTXT = [neighRadiiTXT,cohWTXT,repWTXT,alignWTXT,crowdingThrTXT,leaderWTXT,predatorWTXT,velBoostTXT,huntPersistTXT] 
                 
                 fontSize = 15
                 color = (255,255,255)
@@ -568,7 +610,7 @@ def main(argv):
                     # Draw Goal Radii
                     # pygame.draw.circle(scenario, (0,255,0), (int(boid.x), int(boid.y)), goalRadii,8)
                 
-                elif boid.type < 0 :  # Predators              
+                elif boid.type < 0 :  # Predators         
                     pygame.draw.circle(scenario, (255,128,0),(int(boid.x), int(boid.y)), 14, 0)
                     pygame.draw.circle(scenario,(255,0,0), (int(boid.x), int(boid.y)), 11, 0)
 
@@ -587,7 +629,8 @@ def main(argv):
                         # Make casual agents blink w/ rainbow like colors + Draw its body + Draw its outer layer
                         agentColor = (random.randint(0,240),random.randint(0,240),random.randint(0,240))                     
                         pygame.draw.circle(scenario, agentColor, (int(boid.x), int(boid.y)), int(casualAgentR),0)
-                        if boid in neighPredator: colorRing = (255,128,0) # Boids in hunting zone
+                                                 
+                        if boid in predatorAgent.neighPredator: colorRing = (255,128,0) # Boids in hunting zone
                         elif boid not in boidsNotATgoal: colorRing = (0,180,255) # Boids in leaderAgents protected zone
                         else:  colorRing = (255,255,255) # Any where in the arena
                         pygame.draw.circle(scenario, colorRing, (int(boid.x), int(boid.y)), int(casualAgentR),int(casualAgentR/2))
