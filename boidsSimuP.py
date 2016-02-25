@@ -40,9 +40,10 @@ import copy # used to copy list of objects content and NOT's its pointer
 "GLOBAL VARIABLES"
 pygame.init()
 scenarioSize = width,height = 1350,700 #scenario dimensions
+
+velBoostORI = 2.0
 casualAgentR = 10
 huntPersistOri = 15
-# persistTori = 300
 
 " Class containing all the Boid behaviors "
 class Boid: 
@@ -57,7 +58,7 @@ class Boid:
 
         # This attributes are ONLY used by the PREDATOR agent (correct  programming 
         # practice would be to create a child class inheriting'Boid' ... but :| :|) 
-        
+        self.velBoost = velBoostORI 
         self.neighPredator = [] # list which stores predators preys  
         # Max Val -> Predator hunts ; ZeroVal -> abandons hunting and re-starts random exploration
         self.huntPersist = huntPersistOri
@@ -160,7 +161,7 @@ class Boid:
 
 
     "Perform movement: based on boids velocity (determined by the behavioral rules)"
-    def move(self,maxVel,maxDeltaVel,velBoost,visualON):
+    def move(self,maxVel,maxDeltaVel,visualON):
         
         if self.type>1 : # increase special autonomous agent speed            
             self.velX += random.uniform(-maxDeltaVel,maxDeltaVel)
@@ -169,7 +170,7 @@ class Boid:
         # for each timeStep of evaluating the rules, theres a maximum (saturation) displacement
         # value (boids cant move instantly from one place to the other, its got to me smooth)
         if  abs(self.velX) > maxVel or abs(self.velY) > maxVel:
-            if self.type<=-2: maxVel = maxVel*velBoost
+            if self.type<=-2: maxVel = maxVel*self.velBoost
             scaleFactor = maxVel / max(abs(self.velX), abs(self.velY))
             self.velX *= scaleFactor
             self.velY *= scaleFactor
@@ -227,23 +228,21 @@ class Boid:
 
         # Update predators speed boost based on number of preys
         # if numOfPreys different from zero, the linear equation works (if not, force it to original value)
-        if self.neighPredator: velBoost = -deltaBoost*len(self.neighPredator) + (velBoostORI+deltaBoost)
-        else: velBoost = velBoostORI  
-        velBoost = velBoost*(velBoost>=0) + 0*(velBoost<0)
+        if self.neighPredator: self.velBoost = -deltaBoost*len(self.neighPredator) + (velBoostORI+deltaBoost)
+        else: self.velBoost = velBoostORI  
+        self.velBoost = self.velBoost*(self.velBoost>=0) + 0*(self.velBoost<0)
 
         # When there are few preys, predator tends to "bounce arround" these preys and 
         # never hunt them --> Reduce velBoost propotionally to the time (persistance level)
         # spent hunting them. Providing the predator a more fine/precise attack movement.
         # Increasing its chances to hunt the preys and get out of the "bounce arround" loop
         if len(self.neighPredator) <= 2:
-            velBoost *= (self.huntPersist/huntPersistOri)
-
-        return  velBoost
+            self.velBoost *= (self.huntPersist/huntPersistOri)
 
 " Main Code "       
 def main(argv): 
     
-    "Simulation Evolutionary Parameters: neighRadii, cohW, repW, alignW, crowdingThr, leaderW, predatorW "    
+    "Simulation  Parameters: neighRadii, cohW, repW, alignW, crowdingThr, leaderW, predatorW "    
     if len(argv)>1:
         neighRadii = float(argv[1]) # [150.0]Vecinity which each agents checks to apply behavioral rules
         crowdingThr = float(argv[5]) # [10.0]agents proximity before activation of "repulsion behavior"
@@ -269,7 +268,7 @@ def main(argv):
         pygame.display.set_caption('Boids Simulation')
         sceneColorOri = (0,100,160) # Initial background color
         sceneColor = [sceneColorOri[0],sceneColorOri[1],sceneColorOri[2]] # stores current BG color
-        deltC = 12 # how much does the BG color change on each interation
+        deltC = 15 # how much does the BG color change on each interation
         varC = [1,0,0] # variable used to increase/decrase each [R,G,B] color
 
         # Time after casual agents extinction that hte game will shut down
@@ -278,11 +277,10 @@ def main(argv):
         stableC = 0 # if BG color is at desired value, STOP changing it w/ f(x)'updateBG()'
     
     " General Parameters"
-    noBoids = 3
-    boids = [] # list containing all the agents
-    strip = width # Strip among which the init.pos of casual agent is going to be randomlly selected
+    noBoids = 20
+    noAutoPred = 3
+    # noAutoLead = 1    
     specialRFact = 1.0 # = max(scenarioSize) #= 8 Factor which increases the Radii at which Special Agents are considerder neighbors 
-
     maxVel = 12.0  # Max. delta speed that can be performed on each time step
 
     " Predator Parameters "
@@ -293,50 +291,25 @@ def main(argv):
 
     # Special Agent speed boost is proportional to num of preys in predSight
     # y = m.X + b -> velBoost = -deltaBoost*numPreyINSight + (velBoostORI+deltaBoost)
-    velBoost = 1.8
-    velBoostORI = velBoost
+    ## velBoost
+    velBoostORI = 2.0
     deltaBoost = 0.1
     # when Special Agents are automous (controlled by code), determines the maximum change in speed at each time step
     maxDeltaVel = 7.0
     endGame = 0 # 0: Game continues; 1: End of game
     endGameT = 0
 
-    " Control Variables "
-    # Auxilliary Var's       
+    " Leader Parameters "
+    reviveZone = predKillZone# Radii in which leader agent will revive dead casual agents
+    
+    " Auxilliary Variables "
+    strip = width # Strip among which the init.pos of casual agent is going to be randomlly selected
     ellapsedT = 0 # simulation run time
-    numIter = 0 # Number of positions updates    
-    # evoSuccess = 0
-
-    # # Main Evo. Var's
-    # # 1
-    # interCollV = 0 # Measure Number of Inter Agent Collision
-    # interCollV_PerIter = 0 # Not cummulative, only per iteration
+    numIter = 0 # Number of positions updates   
     casualAgentR # Artificial "Size" of casual agents and Radii among which a collision is determined
-    # collidedAgents = [] # Closed list that stores pairs of agents who have collided on the current iteration
-
-    # #2
-    # medGRadiiV = 0.0# --> insideRadV = 0  # Measures the group level of compactness 
-    # medGRadiiV_PerIter = 0.0 # --> medGRadiiV_PerIter = 0 # Not cummulative, only per iteration
-    # avgPos = np.zeros((1,2)) # groups average position, useful to compute centroid
-
-    # #3
-    # deltaTV = 0.0 
-    # deltaTV_PerIter = 0.0
+    
     goalRadii = int(math.ceil(neighRadii))
-    # factUS = 1E6
-
-    # #4
-    # numATgoalPast = 0
-    # numATgoal = 0    
-    # iterINgoal = 0
-    # avgNumATgoal = 0
-    # countAvg = 0
-    # iterWindow = 50
-    # ###    
     boidsNotATgoal = []
-    # boidsAtgoal = []
-    # currentTGoal = 0
-    # firstGoal = 1
 
     "Special Agents and obstacles params. [Corresponds to self.type != 0]"
     # predatorW = 12# = 12.0 # How much more repulsion will predator have
@@ -347,24 +320,28 @@ def main(argv):
     # specialAgent = []
     # avoidPos = [] # list storing the position obstables
 
-    " Create  Agents"
-    # initialize Casual boids, with a random X,Y position
+    " Create Agents"
+    # Initialize casualAgents boids, with a random X,Y position    
+    boids = [] # list containing all the agents
     for i in range(noBoids):
         boids.append(Boid(0,strip,maxVel)) # casual agent 
 
-    leaderAgent = []
-    leaderAgent = Boid(1,0,maxVel)
-    boids.append(leaderAgent) # Add to list saving all Boid instances     
-    predatorAgent = []    
-    predatorAgent = Boid(-2,0,maxVel)
-    boids.append(predatorAgent)
+    # Initialize predatorAgents (AUTONOMOUS) 
+    predatorAgents = []  
+    for i in range(noAutoPred):
+        predatorAgents.append(Boid(-2,0,maxVel))
+        boids.append(predatorAgents[-1]) # predator agent  
 
-    huntedBoids = [] # stores casualAgents that have been hunted by 
-    # stores casualAgents that are still alive --> copy objects not pointers, to be able 
+    # Initialize leaderAgents (CONTROLLED) 
+    # leaderAgent = []    
+    leaderAgent = Boid(1,0,maxVel)
+    boids.append(leaderAgent) # Add to list saving all Boid instances 
+
+    # stores casualAgents that are (still) alive --> copy objects not pointers, to be able 
     # to remove elements from the copy wo/affecting the original list of objects)
     livingBoids = copy.copy(boids) 
-    predatorAgent
-    numSpecial = sum([1 for boid in livingBoids if(boid.type != 0)])
+    huntedBoids = [] # stores casualAgents that have been hunted by 
+    numSpecial = sum([1 for boid in livingBoids if(boid.type != 0)]) # Number of SpecialAgents (leader || predator) 
 
     " MAIN LOOP "
     while endGameEllapsedT <= endGameTimeOutT:
@@ -394,11 +371,12 @@ def main(argv):
         " Compute neighbooring boids and apply ALL behaviors " 
         for boid in livingBoids :# for each boid
 
+            # RESET Neighborhood variables
             neighBoids = []# list which stores boid neighboors
             neighPredatorTemp = []# list which temporarelly stores predators preys
 
             # CHECK: boid's distance with the other boids
-            for otherBoid in livingBoids:
+            for otherBoid in boids:
                 # Dont check the boids distance with its self                
                 if otherBoid == boid: continue                
                 dist2neigh = boid.distance(otherBoid)
@@ -421,12 +399,17 @@ def main(argv):
                     #         interCollV_PerIter += 1
                     #         collidedAgents.append((boid,otherBoid)) 
 
-                " Evaluate predatorAgent preys, ONLY those that are casual agents "
-                if (boid.type<-1 and boid.type>=-99)  and (dist2neigh < predSight) and not otherBoid.type and not endGame:
+                " Evaluate predatorAgent close preys, ONLY those 'otherBoids' that are casual agents and alive (obviously) "
+                if (boid.type<-1 and boid.type>=-99) and (dist2neigh < predSight) and (not otherBoid.type) and (otherBoid in livingBoids) and (not endGame):
                     if(dist2neigh < predKillZone): 
                         livingBoids.remove(otherBoid) # update survivors
-                        huntedBoids.append(otherBoid) # update casualties
+                        huntedBoids.append(otherBoid) # update casualties                        
                     else: neighPredatorTemp.append(otherBoid)   
+
+                " Evaluate leaderAgent close toReviveAgents, ONLY those 'otherBoids' that are dead (obviously) "
+                if (boid.type>=1) and (dist2neigh < reviveZone) and (otherBoid in huntedBoids) and (not endGame):
+                    livingBoids.append(otherBoid) # update revived casualAgents
+                    huntedBoids.remove(otherBoid) # update casualties
              
             
             if (boid.type<-1 and boid.type>=-99):
@@ -464,7 +447,7 @@ def main(argv):
 
             " Apply predatorHunting behavior based on predators current preys "
             if boid.type<-1 and boid.type>=-99: # Only apply rule to Predator Agents
-                velBoost = boid.predatorHunt(maxDeltaVel,huntCoh,deltaBoost,velBoostORI)
+                boid.predatorHunt(maxDeltaVel,huntCoh,deltaBoost,velBoostORI)
 
         #   # Obtain Number of Agents inside a percentage of the groups position dispersion
         # avgPos[0,0] = sum([boid.x for boid in boids if (boid.type == 0)])
@@ -525,13 +508,13 @@ def main(argv):
 
         # If the TimeOut time is reached == GAME OVER
         elif ellapsedT>timeOutT and not endGame:
-            endGameT = currentT            
-            winner = len(livingBoids)>len(huntedBoids) # 0: Predator wins ; 1: Leader wins
+            endGameT = currentT       
+            winner = (len(livingBoids) - numSpecial)>len(huntedBoids) # 0: Predator wins ; 1: Leader wins
             
         if endGameT :   
             if not endGame:          
                 sceneColor = [255,255,255]#*(winner) + [255,255,255]*not(winner)
-                sceneColorOri = (30,245,170)*(winner) + (153,15,15)*( not winner)
+                sceneColorOri = (30,245,170)*(winner) + (173,15,15)*( not winner)
             endGame = 1
             endGameEllapsedT = (currentT.hour - endGameT.hour)*3600.0 + (currentT.minute-endGameT.minute)*60.0 + (currentT.second-endGameT.second)
                    
@@ -574,14 +557,18 @@ def main(argv):
                 crowdingThrTXT = "crowdingThr : " + str(int(crowdingThr))
                 leaderWTXT = "leaderW : " + str(int(leaderW))
                 predatorWTXT = "predatorW : " + str(int(predatorW))
-                velBoostTXT = "velBoost : " + str(float(round(velBoost,2)))
-                huntPersistTXT = "huntPersist : " + str(float(predatorAgent.huntPersist))
-                geneRangeTXT = [neighRadiiTXT,cohWTXT,repWTXT,alignWTXT,crowdingThrTXT,leaderWTXT,predatorWTXT,velBoostTXT,huntPersistTXT] 
+                geneRangeTXT = [neighRadiiTXT,cohWTXT,repWTXT,alignWTXT,crowdingThrTXT,leaderWTXT,predatorWTXT] 
+                
+                # Concatenate velboost and huntPersist for EACH of the predatorAgents
+                predatorTXT = ["velBoost : " + str(float(round(pred.velBoost,2))) + "  << >>  huntPersist : " + str(float(pred.huntPersist)) for pred in predatorAgents]            
+                geneRangeTXT = geneRangeTXT + predatorTXT
                 
                 fontSize = 15
                 color = (255,255,255)
                 pos = (int(width/2),int(height/2))
                 drawTXT (geneRangeTXT,fontSize,color,pos,scenario)
+
+            # Display end of Game Text
             else:
                 if winner: endGameTXT = ":D Game Over: Leader Wins :D"
                 else: endGameTXT = ":@ Game Over: Predator Wins :@"
@@ -629,8 +616,12 @@ def main(argv):
                         # Make casual agents blink w/ rainbow like colors + Draw its body + Draw its outer layer
                         agentColor = (random.randint(0,240),random.randint(0,240),random.randint(0,240))                     
                         pygame.draw.circle(scenario, agentColor, (int(boid.x), int(boid.y)), int(casualAgentR),0)
-                                                 
-                        if boid in predatorAgent.neighPredator: colorRing = (255,128,0) # Boids in hunting zone
+                        
+                        # Check if current casualAgent ('boid') is prey of ANY of the predatorAgents
+                        isHunted = []                         
+                        isHunted = [1 for pred in predatorAgents if boid in pred.neighPredator]
+                        if isHunted : colorRing = (255,128,0) # Boid in hunting zone
+
                         elif boid not in boidsNotATgoal: colorRing = (0,180,255) # Boids in leaderAgents protected zone
                         else:  colorRing = (255,255,255) # Any where in the arena
                         pygame.draw.circle(scenario, colorRing, (int(boid.x), int(boid.y)), int(casualAgentR),int(casualAgentR/2))
@@ -686,7 +677,7 @@ def main(argv):
         #             sys.exit()
                      
         " Update boids position vector "
-        [boid.move(maxVel,maxDeltaVel,velBoost,visualON) for boid in livingBoids] # if (abs(boid.type) == 0 )]  
+        [boid.move(maxVel,maxDeltaVel,visualON) for boid in livingBoids] # if (abs(boid.type) == 0 )]  
 
     " Simulation Exit "    
     # if (evoSuccess):
