@@ -40,8 +40,9 @@ import copy # used to copy list of objects content and NOT's its pointer
 "GLOBAL VARIABLES"
 pygame.init()
 scenarioSize = width,height = 1350,700 #scenario dimensions
+scenario = 0 # Only used to stablish it as a global variable
 
-velBoostORI = 2.0
+velBoostORI = 0 # Only used to stablish it as a global variable
 casualAgentR = 10
 huntPersistOri = 15
 
@@ -50,7 +51,7 @@ class Boid:
 
     def __init__ (self, type, strip, maxVel):
         # Casual Agent : set pos/vel randonmly ; Special Agents: pos == center of screen and vel == maxSpeed %
-        self.x = random.randint(0,strip)#*(type==0) + (width)*(type!=0)
+        self.x = random.randint(0,width)#*(type==0) + (width)*(type!=0)
         self.y = random.randint(0,height)#*(type==0)  + (height/2)*(type!=0)
         self.velX = float(random.uniform(-maxVel,maxVel)) 
         self.velY = float(random.uniform(-maxVel,maxVel))      
@@ -170,7 +171,7 @@ class Boid:
         # for each timeStep of evaluating the rules, theres a maximum (saturation) displacement
         # value (boids cant move instantly from one place to the other, its got to me smooth)
         if  abs(self.velX) > maxVel or abs(self.velY) > maxVel:
-            if self.type<=-2: maxVel = maxVel*self.velBoost
+            if self.type<-1: maxVel = maxVel*self.velBoost
             scaleFactor = maxVel / max(abs(self.velX), abs(self.velY))
             self.velX *= scaleFactor
             self.velY *= scaleFactor
@@ -237,7 +238,9 @@ class Boid:
         # spent hunting them. Providing the predator a more fine/precise attack movement.
         # Increasing its chances to hunt the preys and get out of the "bounce arround" loop
         if len(self.neighPredator) <= 2:
-            self.velBoost *= (self.huntPersist/huntPersistOri)
+            persistBoost = (self.huntPersist*1.15/huntPersistOri)
+            if persistBoost > 1.0: persistBoost = 1.0
+            self.velBoost *= persistBoost
 
 " Main Code "       
 def main(argv): 
@@ -264,6 +267,7 @@ def main(argv):
 
     "Scenario Visualization Parameters"
     if(visualON): 
+        global scenario
         scenario = pygame.display.set_mode(scenarioSize) # Configure pygame window  
         pygame.display.set_caption('Boids Simulation')
         sceneColorOri = (0,100,160) # Initial background color
@@ -277,9 +281,12 @@ def main(argv):
         stableC = 0 # if BG color is at desired value, STOP changing it w/ f(x)'updateBG()'
     
     " General Parameters"
-    noBoids = 20
-    noAutoPred = 3
-    # noAutoLead = 1    
+    noBoids = 15 # Number of casualAgents
+    noAutoPred = 2 # Number of Autonomous Predators
+    noAutoLead = 3 # Number of Autonomous Leaders
+    # Create a controlled 0: Nothing ; 1: leaderAgent ; 2: predatorAgent
+    contSpecial = 1
+
     specialRFact = 1.0 # = max(scenarioSize) #= 8 Factor which increases the Radii at which Special Agents are considerder neighbors 
     maxVel = 12.0  # Max. delta speed that can be performed on each time step
 
@@ -292,8 +299,8 @@ def main(argv):
     # Special Agent speed boost is proportional to num of preys in predSight
     # y = m.X + b -> velBoost = -deltaBoost*numPreyINSight + (velBoostORI+deltaBoost)
     ## velBoost
-    velBoostORI = 2.0
-    deltaBoost = 0.1
+    velBoostORI = 1.8
+    deltaBoost = 0.2
     # when Special Agents are automous (controlled by code), determines the maximum change in speed at each time step
     maxDeltaVel = 7.0
     endGame = 0 # 0: Game continues; 1: End of game
@@ -308,8 +315,11 @@ def main(argv):
     numIter = 0 # Number of positions updates   
     casualAgentR # Artificial "Size" of casual agents and Radii among which a collision is determined
     
+    " Other params (previously used for evolution "
     goalRadii = int(math.ceil(neighRadii))
     boidsNotATgoal = []
+    # avgPos = np.zeros((1,2)) # groups average position, useful to compute centroid
+
 
     "Special Agents and obstacles params. [Corresponds to self.type != 0]"
     # predatorW = 12# = 12.0 # How much more repulsion will predator have
@@ -321,7 +331,7 @@ def main(argv):
     # avoidPos = [] # list storing the position obstables
 
     " Create Agents"
-    # Initialize casualAgents boids, with a random X,Y position    
+    # Initialize casualAgents boids, with a random X,Y position  
     boids = [] # list containing all the agents
     for i in range(noBoids):
         boids.append(Boid(0,strip,maxVel)) # casual agent 
@@ -332,10 +342,22 @@ def main(argv):
         predatorAgents.append(Boid(-2,0,maxVel))
         boids.append(predatorAgents[-1]) # predator agent  
 
-    # Initialize leaderAgents (CONTROLLED) 
-    # leaderAgent = []    
-    leaderAgent = Boid(1,0,maxVel)
-    boids.append(leaderAgent) # Add to list saving all Boid instances 
+    # # Initialize leaderAgents (AUTONOMOUS) 
+    leaderAgents = []
+    for i in range(noAutoLead):
+        leaderAgents.append(Boid(2,0,maxVel))
+        boids.append(leaderAgents[-1]) # predator agent
+
+    # Initialize Special Agents (CONTROLLED) 
+    if contSpecial== 1: # Controlled Leader
+        leadContAgent = Boid(1,0,maxVel)
+        leaderAgents.append(leadContAgent)
+        boids.append(leadContAgent) # Add to list saving all Boid instances 
+    
+    elif contSpecial== 2:# Controlled Predator
+        predContAgent = Boid(-1,0,maxVel)
+        predatorAgents.append(predContAgent)
+        boids.append(predContAgent) # Add to list saving all Boid instances 
 
     # stores casualAgents that are (still) alive --> copy objects not pointers, to be able 
     # to remove elements from the copy wo/affecting the original list of objects)
@@ -386,8 +408,8 @@ def main(argv):
                 # be considered a neighbor 
                 if otherBoid.type: fact = specialRFact
 
-                " Evaluate casualAgents neighborhood and Collisions "
-                if (dist2neigh < neighRadii*fact) and not boid.type:                    
+                " Evaluate casualAgents neighborhood and Collisions (only w/those alive otherBoid) "
+                if (dist2neigh < neighRadii*fact) and not boid.type and (otherBoid in livingBoids):                   
                     neighBoids.append(otherBoid) # add to neighbors list
 
                     # "EVO.FITNESS -> Inter Agent Colission"
@@ -400,19 +422,19 @@ def main(argv):
                     #         collidedAgents.append((boid,otherBoid)) 
 
                 " Evaluate predatorAgent close preys, ONLY those 'otherBoids' that are casual agents and alive (obviously) "
-                if (boid.type<-1 and boid.type>=-99) and (dist2neigh < predSight) and (not otherBoid.type) and (otherBoid in livingBoids) and (not endGame):
+                if (boid.type<0 and boid.type>=-99) and (dist2neigh < predSight) and (not otherBoid.type) and (otherBoid in livingBoids) and (not endGame):
                     if(dist2neigh < predKillZone): 
                         livingBoids.remove(otherBoid) # update survivors
                         huntedBoids.append(otherBoid) # update casualties                        
                     else: neighPredatorTemp.append(otherBoid)   
 
-                " Evaluate leaderAgent close toReviveAgents, ONLY those 'otherBoids' that are dead (obviously) "
-                if (boid.type>=1) and (dist2neigh < reviveZone) and (otherBoid in huntedBoids) and (not endGame):
+                " Evaluate AUXILLIARY leaderAgent closeness toReviveAgents, ONLY those 'otherBoids' that are dead (obviously) "
+                if (boid.type>=2) and (dist2neigh < reviveZone) and (otherBoid in huntedBoids) and (not endGame):
                     livingBoids.append(otherBoid) # update revived casualAgents
                     huntedBoids.remove(otherBoid) # update casualties
              
             
-            if (boid.type<-1 and boid.type>=-99):
+            if (boid.type<0 and boid.type>=-99):
 
                 # If predators is  trying to hunt the same casualBoids gradually reduce its persistance level 
                 #(ignore the definition of "same" when no preys are being hunted i.e. []) 
@@ -449,7 +471,6 @@ def main(argv):
             if boid.type<-1 and boid.type>=-99: # Only apply rule to Predator Agents
                 boid.predatorHunt(maxDeltaVel,huntCoh,deltaBoost,velBoostORI)
 
-        #   # Obtain Number of Agents inside a percentage of the groups position dispersion
         # avgPos[0,0] = sum([boid.x for boid in boids if (boid.type == 0)])
         # avgPos[0,1] = sum([boid.y for boid in boids if (boid.type == 0)])
 
@@ -458,7 +479,8 @@ def main(argv):
         # GCentroid = GCentroid.astype(int).tolist()# cast from float to int, and then to python list
         # centroidAgent = Boid(0,0,maxVel) # trick used to be able to recycle Euclidian distance to boids method of Boid Class
         # centroidAgent.x = GCentroid[0][0]
-        # centroidAgent.y = GCentroid[0][1]  
+        # centroidAgent.y = GCentroid[0][1]  #   # Obtain Number of Agents inside a percentage of the groups position dispersion
+        
 
         # " EVO.FITNESS ->  Measurement of Group Compactness:"
         # ## Obtain groups dispersion  
@@ -469,9 +491,12 @@ def main(argv):
 
 
         # " EVO.FITNESS ->  Measurement of groups arrival time:"
-        if numIter == 1: boidsNotATgoal = [boid for boid in boids if(boid.type==0)]
-        else:  
-            boidsNotATgoal = [boid for boid in boids if(leaderAgent.distance(boid) >= goalRadii)]
+        if numIter == 1: 
+            boidsNotATgoal = [boid for boid in boids if(boid.type==0)]
+            # check if the leaderControlledAgents ¿ EXIST's ?
+            leadContExist = ('leadContAgent' in locals() or 'leadContAgent' in globals())
+        elif leadContExist: 
+            boidsNotATgoal = [boid for boid in boids if(leadContAgent.distance(boid) >= goalRadii)]
             # boidsAtgoal = [boid for boid in boids if(boid not in boidsNotATgoal)]
 
         # numATgoal = noBoids - len(boidsNotATgoal) 
@@ -536,20 +561,46 @@ def main(argv):
                     sceneColor[0] = sceneColorOri[0]
             scenario.fill(sceneColor) # fill scenario with RGB color
 
-            "Insert Simulation parameters on screen scenario"   
+            "Insert Simulation parameters on screen scenario"  
+            # PARAMETERS: txts,pos,scenario,fontSize = 15,color = (255,255,255),font = 'freesansbold.ttf' 
+
+            # Living VS Hunted TEXT
             fontSize = 20
             color = (255,128,0)
             pos = (80,50)
             scoreP = "Hunted : " + str(len(huntedBoids))               
-            drawTXT ([scoreP],fontSize,color,pos,scenario)
+            drawTXT ([scoreP],pos,fontSize,color)
 
             pos = (80,80)
             color = (0,200,255)
             scoreL = "Living : " + str((len(livingBoids) - numSpecial))               
-            drawTXT ([scoreL],fontSize,color,pos,scenario)
+            drawTXT ([scoreL],pos,fontSize,color)
 
+            # Num of Special Agents
+            color = (255,128,0)
+            pos = (400,50)
+            numPredTXT = "Num.Predators : " + str(len(predatorAgents))            
+            drawTXT ([numPredTXT],pos,fontSize,color)
+            
+            color = (0,200,255)
+            pos = (400,80)
+            numLeadTXT = "Num.Leaders : " + str(len(leaderAgents))
+            drawTXT ([numLeadTXT],pos,fontSize,color)
+            
+            # Simulation StopWatch TEXT
+            fontSize = 65      
+            pos = (240,60)
+            font_path = 'digital-7.ttf'
+            if (not endGame): stopWatch = (timeOutT-ellapsedT)
+            stopWatchTXT = str(int(stopWatch))
+            color = (128,255,0)
+            if stopWatch < 10: color = (255,0,0)
+            elif stopWatch < 0.5*timeOutT: color = (255,200,51)
+            drawTXT ([stopWatchTXT],pos,fontSize,color,font = font_path)
+
+
+            # Simulation Parameters text
             if not endGame:                             
-                ## texts
                 neighRadiiTXT = "neighRadii : " + str(int(neighRadii))
                 cohWTXT = "cohW : " + str(int(cohW*100)) + "%"
                 repWTXT = "repW : " + str(int(repW*100)) + "%"
@@ -563,21 +614,18 @@ def main(argv):
                 predatorTXT = ["velBoost : " + str(float(round(pred.velBoost,2))) + "  << >>  huntPersist : " + str(float(pred.huntPersist)) for pred in predatorAgents]            
                 geneRangeTXT = geneRangeTXT + predatorTXT
                 
-                fontSize = 15
-                color = (255,255,255)
                 pos = (int(width/2),int(height/2))
-                drawTXT (geneRangeTXT,fontSize,color,pos,scenario)
-
-            # Display end of Game Text
+                drawTXT (geneRangeTXT,pos)
+                                
+            # Display end of Game TEXT
             else:
                 if winner: endGameTXT = ":D Game Over: Leader Wins :D"
                 else: endGameTXT = ":@ Game Over: Predator Wins :@"
 
                 fontSize = 30
-                color = (255,255,255)
                 pos = (int(width/2),int(height/2))                
-                drawTXT ([endGameTXT],fontSize,color,pos,scenario)
-
+                drawTXT ([endGameTXT],pos,fontSize)
+                
             " Draw Groups Centroid,  Compactness Radii (Median Radii) "
             # widthCirc = 3  
             # groupC = (GCentroid[0][0],GCentroid[0][1])
@@ -591,15 +639,16 @@ def main(argv):
             " Update Boids visualization "
             for boid in boids:
                 if boid.type > 0 : # Leaders              
-                    pygame.draw.circle(scenario, (0,255,255),(int(boid.x), int(boid.y)), 14, 0)
-                    pygame.draw.circle(scenario, (0,0,255),  (int(boid.x), int(boid.y)), 11, 0)
+                    if boid.type == 1:pygame.draw.circle(scenario, (0,255,0),(int(boid.x), int(boid.y)), 14, 0)
+                    if boid.type > 1: pygame.draw.circle(scenario, (0,255,255),(int(boid.x), int(boid.y)), 14, 0)
+                    pygame.draw.circle(scenario, (0,0,255),  (int(boid.x), int(boid.y)), 10, 0)
 
                     # Draw Goal Radii
                     # pygame.draw.circle(scenario, (0,255,0), (int(boid.x), int(boid.y)), goalRadii,8)
                 
                 elif boid.type < 0 :  # Predators         
                     pygame.draw.circle(scenario, (255,128,0),(int(boid.x), int(boid.y)), 14, 0)
-                    pygame.draw.circle(scenario,(255,0,0), (int(boid.x), int(boid.y)), 11, 0)
+                    pygame.draw.circle(scenario,(255,0,0), (int(boid.x), int(boid.y)), 10, 0)
 
                     # Draw neighPredator radii
                     # pygame.draw.circle(scenario, (255,0,0), (int(boid.x), int(boid.y)), predSight,8)
@@ -744,10 +793,11 @@ def main(argv):
 #         self.type = -100 # obstacles -> self.type <=-100
 
 " Function which draws a list of text in the pygame window "
-def drawTXT(txts,fontSize,color,pos,scenario):
+
+def drawTXT(txts,pos,fontSize = 15,color = (255,255,255),font = 'freesansbold.ttf' ):
     ## text characteristics
     txtColor = color
-    stdFont = pygame.font.Font('freesansbold.ttf',fontSize)
+    stdFont = pygame.font.Font(font,fontSize)
     txtPos = pos
 
     ## texts rederings
