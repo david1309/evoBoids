@@ -51,8 +51,8 @@ class Boid:
 
     def __init__ (self, type, strip, maxVel):
         # Casual Agent : set pos/vel randonmly ; Special Agents: pos == center of screen and vel == maxSpeed %
-        self.x = random.randint(0,width)#*(type==0) + (width)*(type!=0)
-        self.y = random.randint(0,height)#*(type==0)  + (height/2)*(type!=0)
+        self.x = random.randint(0,width)*(type==0) + (width)*(type!=0)
+        self.y = random.randint(0,height)*(type==0)  + (height/2)*(type!=0)
         self.velX = float(random.uniform(-maxVel,maxVel)) 
         self.velY = float(random.uniform(-maxVel,maxVel))      
         self.type = type
@@ -124,7 +124,7 @@ class Boid:
             distance = self.distance(boid)
 
             fact = 1.0 # used to modify Special Agents "repulsion force"
-            if boid.type > 0: fact = 1 #leaderW # decreases radii at which leader is repulsed
+            if boid.type > 0: fact = 1.0 #leaderW # decreases radii at which leader is repulsed
             # if len(boids)>10 and type>0: fact /=100 # <-- C2!?
             elif boid.type < 0 and boid.type>=-99 : fact = 1.0/predatorW  # increases radii at which predator is repulsed
             elif boid.type<-99 : fact = 1.0/avoidW  # increases radii at which obstacle is avoided
@@ -281,28 +281,30 @@ def main(argv):
         stableC = 0 # if BG color is at desired value, STOP changing it w/ f(x)'updateBG()'
     
     " General Parameters"
-    noBoids = 15 # Number of casualAgents
-    noAutoPred = 2 # Number of Autonomous Predators
-    noAutoLead = 3 # Number of Autonomous Leaders
+    noBoids = 10 # Number of casualAgents
+    noAutoPred = 3 # Number of Autonomous Predators
+    noAutoLead = 0 # Number of Autonomous Leaders
     # Create a controlled 0: Nothing ; 1: leaderAgent ; 2: predatorAgent
     contSpecial = 1
 
     specialRFact = 1.0 # = max(scenarioSize) #= 8 Factor which increases the Radii at which Special Agents are considerder neighbors 
-    maxVel = 12.0  # Max. delta speed that can be performed on each time step
+    maxVel = 11.0  # Max. delta speed that can be performed on each time step
 
     " Predator Parameters "
     predSight = 150
-    neightPredatorTemp = []
+    ### neighPredatorTemp 
     predKillZone = casualAgentR*3
+    factP2P = 1.5 # Factor by which collisionRadii is scaled, determining how close can 2 predators stand
+    factP2L = 4 # Factor by which collisionRadii is scaled, determining frighten would a predator be from a leader
     huntCoh = 4.0/100 # How attracted is the predator towards the preysCentroid
 
     # Special Agent speed boost is proportional to num of preys in predSight
     # y = m.X + b -> velBoost = -deltaBoost*numPreyINSight + (velBoostORI+deltaBoost)
-    ## velBoost
-    velBoostORI = 1.8
-    deltaBoost = 0.2
+    ### velBoost
+    velBoostORI = 1.55
+    deltaBoost = 0.15
     # when Special Agents are automous (controlled by code), determines the maximum change in speed at each time step
-    maxDeltaVel = 7.0
+    maxDeltaVel = 6
     endGame = 0 # 0: Game continues; 1: End of game
     endGameT = 0
 
@@ -421,14 +423,26 @@ def main(argv):
                     #         interCollV_PerIter += 1
                     #         collidedAgents.append((boid,otherBoid)) 
 
-                " Evaluate predatorAgent close preys, ONLY those 'otherBoids' that are casual agents and alive (obviously) "
-                if (boid.type<0 and boid.type>=-99) and (dist2neigh < predSight) and (not otherBoid.type) and (otherBoid in livingBoids) and (not endGame):
-                    if(dist2neigh < predKillZone): 
+                " Evaluate predatorAgent close preys as those 'otherBoids' that are casualAgents OR Evaluate to close predator agents. theyve got to bealive (obviously) "
+                if (boid.type<0 and boid.type>=-99) and ( ( (dist2neigh < predSight and not otherBoid.type) or \
+                   (dist2neigh < crowdingThr*factP2P and (otherBoid.type<0 and otherBoid.type>=-99)) ) or \
+                   (dist2neigh < crowdingThr*factP2L and otherBoid.type == 1 ) )and (otherBoid in livingBoids) and (not endGame):
+                    
+                    # Hunted casualAgent
+                    if(dist2neigh < predKillZone and not otherBoid.type ): 
                         livingBoids.remove(otherBoid) # update survivors
-                        huntedBoids.append(otherBoid) # update casualties                        
-                    else: neighPredatorTemp.append(otherBoid)   
+                        huntedBoids.append(otherBoid) # update casualties 
+                    # Casual agent in predators Sight Zone
+                    elif not otherBoid.type: neighPredatorTemp.append(otherBoid)  
 
-                " Evaluate AUXILLIARY leaderAgent closeness toReviveAgents, ONLY those 'otherBoids' that are dead (obviously) "
+                    # otherBoid predator agents that are to close to the current Predator boid, move away to avoid colission (overlapping)                                             
+                    elif(otherBoid.type<0 and otherBoid.type>=-99): boid.repulsion([otherBoid],repW,crowdingThr*factP2P,leaderW,predatorW)
+                    
+                    # otherBoid predator agents that are to close to the Controlled Leader, get away from it                                            
+                    elif otherBoid.type == 1: boid.repulsion([otherBoid],repW,crowdingThr*factP2L,leaderW,predatorW)
+
+
+                " Evaluate AUXILLIARY leaderAgent closeness to ONLY those 'otherBoids' that are dead (obviously) "
                 if (boid.type>=2) and (dist2neigh < reviveZone) and (otherBoid in huntedBoids) and (not endGame):
                     livingBoids.append(otherBoid) # update revived casualAgents
                     huntedBoids.remove(otherBoid) # update casualties
@@ -527,7 +541,7 @@ def main(argv):
 
         " End of game desicion"
         # If ALL casual agents have been hunted == GAME OVER
-        if not (len(livingBoids) - numSpecial) and not endGame:
+        if not (len(livingBoids) - numSpecial) and not endGame and noBoids !=0:
             endGameT = currentT
             winner = 0 # Predator wins            
 
