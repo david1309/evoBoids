@@ -41,28 +41,47 @@ import copy # used to copy list of objects content and NOT's its pointer
 pygame.init()
 scenarioSize = width,height = 1350,700 #scenario dimensions
 scenario = 0 # Only used to stablish it as a global variable
+casualAgentR = 8
 
 velBoostORI = 0 # Only used to stablish it as a global variable
-casualAgentR = 10
-huntPersistOri = 15
+persistORI = 0 # Only used to stablish it as a global variable
 
 " Class containing all the Boid behaviors "
 class Boid: 
 
     def __init__ (self, type, strip, maxVel):
-        # Casual Agent : set pos/vel randonmly ; Special Agents: pos == center of screen and vel == maxSpeed %
-        self.x = random.randint(0,width)*(type==0) + (width)*(type!=0)
-        self.y = random.randint(0,height)*(type==0)  + (height/2)*(type!=0)
+
+        # Position and Velocity Attributes
+        self.x = random.randint(0,width)#*(type==0) + (width)*(type!=0)
+        self.y = random.randint(0,height)#*(type==0)  + (height/2)*(type!=0)
         self.velX = float(random.uniform(-maxVel,maxVel)) 
         self.velY = float(random.uniform(-maxVel,maxVel))      
+
+        # Type Attribute: 
+        # 0: casualAgent ; 1: controlledLeaderAgent ; >1 : autonomousLeaderAgent (assistant)
+        # -1: controlledPredatorAgent ; <-1 && >-99: autonomousPredatorrAgent
+        # <-99: obstacle
         self.type = type
 
-        # This attributes are ONLY used by the PREDATOR agent (correct  programming 
-        # practice would be to create a child class inheriting'Boid' ... but :| :|) 
+        " This attributes are ONLY used by the PREDATOR agent"
+        # (correct  programming practice would create a child class inheriting'Boid' ... but :| :|) 
+        
+        # Agents Neighborhood Attribute:
+        self.neighAgent = [] # list which stores the otherAgents that the currentAgents sees 
+        
+        # Velocity Boost Attribute:
+        # Predators Agent speed boost is proportional to num of preys in predSight
+        # y = m.X + b -> velBoost = -deltaBoost*numPreyINSight + (velBoostORI+deltaBoost)
         self.velBoost = velBoostORI 
-        self.neighPredator = [] # list which stores predators preys  
-        # Max Val -> Predator hunts ; ZeroVal -> abandons hunting and re-starts random exploration
-        self.huntPersist = huntPersistOri
+                
+        # Persistances Level Attribute:
+        # Max Val -> Predator/assitant hunts/revives ; ZeroVal -> abandons hunting/revival and re-starts random exploration
+        self.persistLevel = persistORI
+
+        # Random Exploration count Attribute:
+        # counts for how much "time" is predator in Random Exploration behavior
+        # when its value reaches randMAX, triggers agents instant "GlobalVision" of the scenario
+        self.randCount = 0 
         
 
     " Compute (Euclidian) distance from self - to - 'boid' "
@@ -85,7 +104,8 @@ class Boid:
 
         for boid in boids:
             fact = 1.0 # used to modify Special Agents "cohesion force"
-            if boid.type > 0: fact = leaderW #  leader positive reinforcement
+            if boid.type == 1: fact = leaderW #  ControlledLeader extra-attraction
+            elif boid.type > 1 : fact = leaderW/2.0 #  Autoleaders extra-attraction
             # if len(boids)>10 and type>0: fact = leaderW*leaderW # <-- C1!?                               
             elif boid.type < 0: fact = 1.0/predatorW # predator negative reinforcement
 
@@ -202,22 +222,26 @@ class Boid:
 
 
     "Exclusive predatorAgent method: based on the preys he's got on sight, compute predators displacement"
-    def predatorHunt(self,maxDeltaVel,huntCoh,deltaBoost,velBoostORI):          
-        # if NO prey in sight --> random exploration behavior
-        # If huntPersist reaches minumum level (0), Predator surrenders and activates --> random exploration behavior
-        if not self.neighPredator or not self.huntPersist:
+    def move2centroid(self,maxDeltaVel,centerCoh,deltaBoost,velBoostORI, deltaRandCount):          
+        # if NO prey in sight --> Random Exploration Behavior
+        # If persistLevel reaches minimum level (0), Predator surrenders and activates --> random exploration behavior
+        if not self.neighAgent or not self.persistLevel:
             self.velX += random.uniform(-maxDeltaVel,maxDeltaVel)
             self.velY += random.uniform(-maxDeltaVel,maxDeltaVel)
 
-        # if  prey in sight --> "hunt centroid"
-        else:
+            self.randCount += deltaRandCount # Increase Random Exploration behavior count
+
+        # if  prey in sight --> Move To Centroid Behavior
+        else:    
+            self.randCount = 0 # Once huntig is triggered , reset random behavior count 
+
             # Compute preys centroid
             avgPos = np.zeros((1,2)) # groups average position, useful to compute centroid
             # Obtain Number of Agents inside a percentage of the groups position dispersion
-            avgPos[0,0] = sum([prey.x for prey in self.neighPredator ])
-            avgPos[0,1] = sum([prey.y for prey in self.neighPredator ])
+            avgPos[0,0] = sum([prey.x for prey in self.neighAgent ])
+            avgPos[0,1] = sum([prey.y for prey in self.neighAgent ])
 
-            GCentroid = avgPos/len(self.neighPredator) # preyGroup centroid 
+            GCentroid = avgPos/len(self.neighAgent) # preyGroup centroid 
             GCentroid = GCentroid.astype(int).tolist()# cast from float to int, and then to python list
             preysCentroid = Boid(0,0,0) # trick used to be able to recycle cohesion method of Boid Class
             preysCentroid.x = GCentroid[0][0]
@@ -225,22 +249,25 @@ class Boid:
             preysCentroid = [preysCentroid] # transform into iterable object (list)
 
             # Move predators to preys centroid
-            self.cohesion(preysCentroid,huntCoh,0,0)
+            self.cohesion(preysCentroid,centerCoh,0,0)
 
-        # Update predators speed boost based on number of preys
-        # if numOfPreys different from zero, the linear equation works (if not, force it to original value)
-        if self.neighPredator: self.velBoost = -deltaBoost*len(self.neighPredator) + (velBoostORI+deltaBoost)
-        else: self.velBoost = velBoostORI  
-        self.velBoost = self.velBoost*(self.velBoost>=0) + 0*(self.velBoost<0)
+        if self.type <= -1:
+            # Update predators speed boost based on number of preys
+            # if numOfPreys different from zero, the linear equation works (if not, force it to original value)
+            if self.neighAgent: self.velBoost = -deltaBoost*len(self.neighAgent) + (velBoostORI+deltaBoost)
+            else: self.velBoost = velBoostORI  
+            self.velBoost = self.velBoost*(self.velBoost>=0) + 0*(self.velBoost<0)
 
-        # When there are few preys, predator tends to "bounce arround" these preys and 
-        # never hunt them --> Reduce velBoost propotionally to the time (persistance level)
-        # spent hunting them. Providing the predator a more fine/precise attack movement.
-        # Increasing its chances to hunt the preys and get out of the "bounce arround" loop
-        if len(self.neighPredator) <= 2:
-            persistBoost = (self.huntPersist*1.15/huntPersistOri)
-            if persistBoost > 1.0: persistBoost = 1.0
-            self.velBoost *= persistBoost
+            # When there are few preys, predator tends to "bounce arround" these preys and 
+            # never hunt them --> Reduce velBoost propotionally to the time (persistance level)
+            # spent hunting them. Providing the predator a more fine/precise attack movement.
+            # Increasing its chances to hunt the preys and get out of the "bounce arround" loop
+            if len(self.neighAgent) <= 2:
+                # persistBoost might decrease to rapidlly. therefore a '*Factor' is used
+                # to decrease the rate of change
+                persistBoost = (self.persistLevel*1.15/persistORI) # 
+                if persistBoost > 1.0: persistBoost = 1.0
+                self.velBoost *= persistBoost
 
 " Main Code "       
 def main(argv): 
@@ -282,58 +309,49 @@ def main(argv):
     
     " General Parameters"
     noBoids = 10 # Number of casualAgents
-    noAutoPred = 3 # Number of Autonomous Predators
-    noAutoLead = 0 # Number of Autonomous Leaders
+    noAutoPred = 1 # Number of Autonomous Predators
+    noAutoLead = 0 # Number of Autonomous (assistant) Leaders
     # Create a controlled 0: Nothing ; 1: leaderAgent ; 2: predatorAgent
     contSpecial = 1
 
     specialRFact = 1.0 # = max(scenarioSize) #= 8 Factor which increases the Radii at which Special Agents are considerder neighbors 
-    maxVel = 11.0  # Max. delta speed that can be performed on each time step
+    maxVel = 9.0  # Max. delta speed that can be performed on each time step
 
-    " Predator Parameters "
-    predSight = 150
-    ### neighPredatorTemp 
-    predKillZone = casualAgentR*3
+    " Predator Parameters "    
+    predSight = 150 # radius of vision at which predator will be able to localize its preys
+    randMAX= 10 # Random Exploration Count Attribute: see constructor at class 'Boid'
+    deltaRandCount = 0.1 # how fast does random behavior count increase
+    globalFact = 1.0 # factor by which predSight is *, enabling predator to have a globalVision for a short time
+    G = 0 # Counts for how much time should global vision be active
+
+    predKillZone = casualAgentR*4 # distance at which predator will effectively kill its prey
     factP2P = 1.5 # Factor by which collisionRadii is scaled, determining how close can 2 predators stand
-    factP2L = 4 # Factor by which collisionRadii is scaled, determining frighten would a predator be from a leader
-    huntCoh = 4.0/100 # How attracted is the predator towards the preysCentroid
+    centerCoh = 4.0/100 # How attracted is the predator towards the preysCentroid
+    global velBoostORI
+    velBoostORI = 1.9 # Velocity Boost Attribute: see constructor at class 'Boid'
+    deltaBoost = 0.1 # Slope determining impact on the predatorsVelocity when group of agents is encountered
+    maxDeltaVel = 3# Determines Autonomous Special Agents  maximum change in speed at each time step
+    
+    global persistORI
+    persistORI = 15 # Persistance Level Attribute: see constructor at class 'Boid'
+    deltaPersist = 0.1 # How fast does persistant level reduce when attempting to hunt/revive the same preys
 
-    # Special Agent speed boost is proportional to num of preys in predSight
-    # y = m.X + b -> velBoost = -deltaBoost*numPreyINSight + (velBoostORI+deltaBoost)
-    ### velBoost
-    velBoostORI = 1.55
-    deltaBoost = 0.15
-    # when Special Agents are automous (controlled by code), determines the maximum change in speed at each time step
-    maxDeltaVel = 6
-    endGame = 0 # 0: Game continues; 1: End of game
-    endGameT = 0
 
     " Leader Parameters "
-    reviveZone = predKillZone# Radii in which leader agent will revive dead casual agents
-    
+    factP2L = 1 # Factor by which collisionRadii is scaled, determining frighten would a predator be from a leader
+    reviveZone = predKillZone# Radii in which autoLeader (ASSISTANT) agent will revive dead casual agents
+    reviveSigth = 100 # radius of vision at which autoleader will be able to localize a dead casualAgent 
+
     " Auxilliary Variables "
     strip = width # Strip among which the init.pos of casual agent is going to be randomlly selected
     ellapsedT = 0 # simulation run time
     numIter = 0 # Number of positions updates   
     casualAgentR # Artificial "Size" of casual agents and Radii among which a collision is determined
-    
-    " Other params (previously used for evolution "
-    goalRadii = int(math.ceil(neighRadii))
-    boidsNotATgoal = []
-    # avgPos = np.zeros((1,2)) # groups average position, useful to compute centroid
-
-
-    "Special Agents and obstacles params. [Corresponds to self.type != 0]"
-    # predatorW = 12# = 12.0 # How much more repulsion will predator have
-    # avoidW = 16.0 # How much more repulsion (how far away) will agents evade obstacles
-    # 0: Created both, leader/predator Auto.Agents ; 1/-1: Creadte Auto.leader/Auto predator agents
-    # autoAgents = 0 
-    # lists that store controled and special agent object instances (needed in order to delete them when needed) 
-    # specialAgent = []
-    # avoidPos = [] # list storing the position obstables
-
+    endGame = 0 # 0: Game continues; 1: End of game
+    endGameT = 0
+   
     " Create Agents"
-    # Initialize casualAgents boids, with a random X,Y position  
+    # Initialize casualAgents boids
     boids = [] # list containing all the agents
     for i in range(noBoids):
         boids.append(Boid(0,strip,maxVel)) # casual agent 
@@ -344,17 +362,19 @@ def main(argv):
         predatorAgents.append(Boid(-2,0,maxVel))
         boids.append(predatorAgents[-1]) # predator agent  
 
-    # # Initialize leaderAgents (AUTONOMOUS) 
+    # # Initialize'''''''''''''''''''''''''''''''''''''''''''''''''''''''' leaderAgents (AUTONOMOUS) 
     leaderAgents = []
     for i in range(noAutoLead):
         leaderAgents.append(Boid(2,0,maxVel))
         boids.append(leaderAgents[-1]) # predator agent
 
-    # Initialize Special Agents (CONTROLLED) 
+    # Initialize Controlled Special Agents (CONTROLLED) 
+    boidsNotATgoal = [] # Initialize list containing boids that arrent near the controlledLeader
+    goalRadii = int(math.ceil(neighRadii))
     if contSpecial== 1: # Controlled Leader
         leadContAgent = Boid(1,0,maxVel)
         leaderAgents.append(leadContAgent)
-        boids.append(leadContAgent) # Add to list saving all Boid instances 
+        boids.append(leadContAgent) # Add to list saving all Boid instances   
     
     elif contSpecial== 2:# Controlled Predator
         predContAgent = Boid(-1,0,maxVel)
@@ -374,16 +394,13 @@ def main(argv):
             # First time pause for user to visualize simulation parameters
             # if(visualON): 
                 # if(numIter == 2): raw_input("... Press enter to start simulation ...")
+            
             # Capture Initial start time of simulation
             initT = datetime.now().time()
+
         elif numIter > 1:
             currentT = datetime.now().time()
             ellapsedT = (currentT.hour - initT.hour)*3600.0 + (currentT.minute-initT.minute)*60.0 + (currentT.second-initT.second)
-    
-        # Reset " per iteration " Evo. params
-        # interCollV_PerIter = 0
-        # avgPos[:] = 0
-        # collidedAgents = []
 
         # Check for any event which exits the simulation
         if(visualON):
@@ -392,12 +409,24 @@ def main(argv):
                     pygame.display.quit()
                     sys.exit()
          
-        " Compute neighbooring boids and apply ALL behaviors " 
+        " Compute neighbooring boids and apply ALL behaviors "
+
+        # RESET variables
+        boidsNotATgoal = [] 
+        
         for boid in livingBoids :# for each boid
 
             # RESET Neighborhood variables
             neighBoids = []# list which stores boid neighboors
             neighPredatorTemp = []# list which temporarelly stores predators preys
+            
+            # Global Vision Enabling/Disabling
+            if (boid.type<0 and boid.type>=-99) and (boid.randCount >= randMAX or G): 
+                G += 1
+                if G < 20: globalFact = 20.0 # ammount of iterations global vision is going to be active
+                else : # disable global vision and reset factor and counter
+                    globalFact = 1.0
+                    G = 0   
 
             # CHECK: boid's distance with the other boids
             for otherBoid in boids:
@@ -410,7 +439,7 @@ def main(argv):
                 # be considered a neighbor 
                 if otherBoid.type: fact = specialRFact
 
-                " Evaluate casualAgents neighborhood and Collisions (only w/those alive otherBoid) "
+                " Evaluate casualAgents neighborhood and Collisions (only w/those alive casualAgent otherBoid) "
                 if (dist2neigh < neighRadii*fact) and not boid.type and (otherBoid in livingBoids):                   
                     neighBoids.append(otherBoid) # add to neighbors list
 
@@ -422,9 +451,9 @@ def main(argv):
                     #         interCollV += 1
                     #         interCollV_PerIter += 1
                     #         collidedAgents.append((boid,otherBoid)) 
-
-                " Evaluate predatorAgent close preys as those 'otherBoids' that are casualAgents OR Evaluate to close predator agents. theyve got to bealive (obviously) "
-                if (boid.type<0 and boid.type>=-99) and ( ( (dist2neigh < predSight and not otherBoid.type) or \
+                
+                " Evaluate predatorAgent close preys (casualAgents) OR  close predatorAgents OR close controlledLeaderAgents. Theyve all got to bealive (obviously) "
+                if (boid.type<0 and boid.type>=-99) and ( ( (dist2neigh < predSight*globalFact and not otherBoid.type) or \
                    (dist2neigh < crowdingThr*factP2P and (otherBoid.type<0 and otherBoid.type>=-99)) ) or \
                    (dist2neigh < crowdingThr*factP2L and otherBoid.type == 1 ) )and (otherBoid in livingBoids) and (not endGame):
                     
@@ -433,44 +462,45 @@ def main(argv):
                         livingBoids.remove(otherBoid) # update survivors
                         huntedBoids.append(otherBoid) # update casualties 
                     # Casual agent in predators Sight Zone
-                    elif not otherBoid.type: neighPredatorTemp.append(otherBoid)  
+                    elif not otherBoid.type: 
+                        neighPredatorTemp.append(otherBoid)  
+                        # raw_input()
 
                     # otherBoid predator agents that are to close to the current Predator boid, move away to avoid colission (overlapping)                                             
                     elif(otherBoid.type<0 and otherBoid.type>=-99): boid.repulsion([otherBoid],repW,crowdingThr*factP2P,leaderW,predatorW)
                     
-                    # otherBoid predator agents that are to close to the Controlled Leader, get away from it                                            
-                    elif otherBoid.type == 1: boid.repulsion([otherBoid],repW,crowdingThr*factP2L,leaderW,predatorW)
+                    # otherBoid predator agents that are to close to the Controlled Leader, get away from it   
+                    # NOTE: check persistance level to avoid bug that produces predator getting stuck to  controlledLeader                                         
+                    elif otherBoid.type == 1 and boid.persistLevel != 0: boid.repulsion([otherBoid],repW,crowdingThr*factP2L,leaderW,predatorW)
+
+                " Evaluate ASSISTANT leaderAgent closeness, ONLY to those 'otherBoids' that are dead (obviously) "
+                if (boid.type>=2) and (dist2neigh < reviveSigth) and (otherBoid in huntedBoids) and (not endGame):
+                    if dist2neigh < reviveZone: # Revival !!!
+                        livingBoids.append(otherBoid) # update revived casualAgents
+                        huntedBoids.remove(otherBoid) # update casualties
+
+                    # Dead prey inside Revival Radius
+                    else: neighPredatorTemp.append(otherBoid) 
+
+                " Evaluate if the controledLeaderAgent does exist && check which otherBoids aren't close to him"
+                if boid.type == 1 and not otherBoid.type and boid.distance(otherBoid)>= goalRadii :                    
+                     boidsNotATgoal.append(otherBoid)
 
 
-                " Evaluate AUXILLIARY leaderAgent closeness to ONLY those 'otherBoids' that are dead (obviously) "
-                if (boid.type>=2) and (dist2neigh < reviveZone) and (otherBoid in huntedBoids) and (not endGame):
-                    livingBoids.append(otherBoid) # update revived casualAgents
-                    huntedBoids.remove(otherBoid) # update casualties
-             
-            
-            if (boid.type<0 and boid.type>=-99):
+            " Apply predatorAgent/assitantAgent persistance level and Update neighAgent attribute "
+            if (boid.type<0 and boid.type>=-99) or boid.type >=2 :
 
-                # If predators is  trying to hunt the same casualBoids gradually reduce its persistance level 
-                #(ignore the definition of "same" when no preys are being hunted i.e. []) 
-                deltaPersit = 0.1
-                if neighPredatorTemp == boid.neighPredator and neighPredatorTemp:
-                    if boid.huntPersist - deltaPersit >= 0.0: boid.huntPersist -= deltaPersit # if it isnt already zero, reduce it         
-                    boid.huntPersist  = round(boid.huntPersist,2)
-                # if predator finds a different group of preys, re-activate hunting behavior
+                # If predators/assitant is  trying to hunt/revive the same casualBoids gradually reduce its persistance level 
+                # (ignore the definition of "same" when no preys are being hunted/revived i.e. []) 
+                if neighPredatorTemp == boid.neighAgent and neighPredatorTemp:
+                    if boid.persistLevel - deltaPersist >= 0.0: boid.persistLevel -= deltaPersist # if it isnt already zero, reduce it         
+                    boid.persistLevel  = round(boid.persistLevel,2)
+                # if predator/assistant finds a different group of preys, re-activate hunting/random behavior
                 else:
-                    boid.huntPersist = huntPersistOri 
+                    boid.persistLevel = persistORI 
 
-                # Update predators list of preys
-                boid.neighPredator = neighPredatorTemp
-
-
-            # # CHECK: neighboring obstacles
-            # neighAvoid = [] # list which stores obstacle neighboors
-            # for avoid in avoidPos:                
-            #     dist2obs = boid.distance(avoid)
-
-            #     if dist2obs < neighRadii:
-            #         neighAvoid.append(otherBoid) # add to list
+                # Update predators/assistnat list of preys
+                boid.neighAgent = neighPredatorTemp
 
             " Apply the three behaviors based on current neighborhood (if existant) "
             if neighBoids and not boid.type : # Only apply rule to Casual Agents
@@ -481,64 +511,19 @@ def main(argv):
                 # if neighAvoid: # if current boid has some near obstacle, apply repulsion behavior to it
                 #     boid.repulsion(avoidPos,repW)  
 
-            " Apply predatorHunting behavior based on predators current preys "
-            if boid.type<-1 and boid.type>=-99: # Only apply rule to Predator Agents
-                boid.predatorHunt(maxDeltaVel,huntCoh,deltaBoost,velBoostORI)
+            " Apply predatorHunting/assistantRevival behavior based on predators/assistants current preys "
+            if (boid.type<-1 and boid.type>=-99) or boid.type >=2  : # Only apply rule to Predator Agents or Assistant Agents
+                boid.move2centroid(maxDeltaVel,centerCoh,deltaBoost,velBoostORI,deltaRandCount)
 
-        # avgPos[0,0] = sum([boid.x for boid in boids if (boid.type == 0)])
-        # avgPos[0,1] = sum([boid.y for boid in boids if (boid.type == 0)])
+            # # CHECK: neighboring obstacles
+            # neighAvoid = [] # list which stores obstacle neighboors
+            # for avoid in avoidPos:                
+            #     dist2obs = boid.distance(avoid)
 
-        # ## Dont use len(boids) as the averaging number since it will mistakenly include the Special Agents
-        # GCentroid = avgPos/noBoids # Groups centroid
-        # GCentroid = GCentroid.astype(int).tolist()# cast from float to int, and then to python list
-        # centroidAgent = Boid(0,0,maxVel) # trick used to be able to recycle Euclidian distance to boids method of Boid Class
-        # centroidAgent.x = GCentroid[0][0]
-        # centroidAgent.y = GCentroid[0][1]  #   # Obtain Number of Agents inside a percentage of the groups position dispersion
+            #     if dist2obs < neighRadii:
+            #         neighAvoid.append(otherBoid) # add to list
+          
         
-
-        # " EVO.FITNESS ->  Measurement of Group Compactness:"
-        # ## Obtain groups dispersion  
-        # dist2Centroid = [centroidAgent.distance(boid) for boid in boids if (boid.type == 0)]
-
-        # medGRadiiV_PerIter = np.median(np.array(dist2Centroid))
-        # medGRadiiV += medGRadiiV_PerIter
-
-
-        # " EVO.FITNESS ->  Measurement of groups arrival time:"
-        if numIter == 1: 
-            boidsNotATgoal = [boid for boid in boids if(boid.type==0)]
-            # check if the leaderControlledAgents ¿ EXIST's ?
-            leadContExist = ('leadContAgent' in locals() or 'leadContAgent' in globals())
-        elif leadContExist: 
-            boidsNotATgoal = [boid for boid in boids if(leadContAgent.distance(boid) >= goalRadii)]
-            # boidsAtgoal = [boid for boid in boids if(boid not in boidsNotATgoal)]
-
-        # numATgoal = noBoids - len(boidsNotATgoal) 
-        # if (numIter-iterINgoal) > iterWindow and iterINgoal: 
-        #     iterINgoal = numIter
-        #     countAvg += 1
-        #     avgNumATgoal += numATgoal
-
-        # if (numATgoal-numATgoalPast) > 0:  # >0 to only count deltas when agents are going into the goal, not leaving it
-        #     numATgoalPast = numATgoal
-        #     pastTGoal = currentTGoal
-        #     currentTGoal = datetime.now().time()
-
-        #     if firstGoal: 
-        #         iterINgoal = numIter
-        #         firstGoal = 0
-        #     else:     
-        #         deltaTV_PerIter = (currentTGoal.hour-pastTGoal.hour)*3600.0*factUS + \
-        #                           (currentTGoal.minute-pastTGoal.minute)*60.0*factUS + \
-        #                           (currentTGoal.second-pastTGoal.second)*1.0*factUS + \
-        #                           (currentTGoal.microsecond-pastTGoal.microsecond)
-        #         deltaTV += deltaTV_PerIter
-
-        # if numATgoal == noBoids and not evoSuccess:
-        #     currentT= datetime.now().time()
-        #     t2GoalV = (currentT.hour-initT.hour)*3600.0 + (currentT.minute-initT.minute)*60.0 + (currentT.second-initT.second)*1.0
-        #     evoSuccess = 1 
-
         " End of game desicion"
         # If ALL casual agents have been hunted == GAME OVER
         if not (len(livingBoids) - numSpecial) and not endGame and noBoids !=0:
@@ -549,6 +534,7 @@ def main(argv):
         elif ellapsedT>timeOutT and not endGame:
             endGameT = currentT       
             winner = (len(livingBoids) - numSpecial)>len(huntedBoids) # 0: Predator wins ; 1: Leader wins
+            # winner = (len(livingBoids) - numSpecial) >0 # 0: Predator wins ; 1: Leader wins
             
         if endGameT :   
             if not endGame:          
@@ -556,7 +542,8 @@ def main(argv):
                 sceneColorOri = (30,245,170)*(winner) + (173,15,15)*( not winner)
             endGame = 1
             endGameEllapsedT = (currentT.hour - endGameT.hour)*3600.0 + (currentT.minute-endGameT.minute)*60.0 + (currentT.second-endGameT.second)
-                   
+                
+
         " Simu. Visualization: Update virtual boids display "
         # visualON determines if the simulation will show the visual environment
         if (visualON):       
@@ -624,8 +611,8 @@ def main(argv):
                 predatorWTXT = "predatorW : " + str(int(predatorW))
                 geneRangeTXT = [neighRadiiTXT,cohWTXT,repWTXT,alignWTXT,crowdingThrTXT,leaderWTXT,predatorWTXT] 
                 
-                # Concatenate velboost and huntPersist for EACH of the predatorAgents
-                predatorTXT = ["velBoost : " + str(float(round(pred.velBoost,2))) + "  << >>  huntPersist : " + str(float(pred.huntPersist)) for pred in predatorAgents]            
+                # Concatenate velboost and persistLevel for EACH of the predatorAgents
+                predatorTXT = ["velBoost : " + str(float(round(pred.velBoost,2))) + "  << >>  persistLevel : " + str(float(pred.persistLevel)) for pred in predatorAgents]            
                 geneRangeTXT = geneRangeTXT + predatorTXT
                 
                 pos = (int(width/2),int(height/2))
@@ -664,28 +651,29 @@ def main(argv):
                     pygame.draw.circle(scenario, (255,128,0),(int(boid.x), int(boid.y)), 14, 0)
                     pygame.draw.circle(scenario,(255,0,0), (int(boid.x), int(boid.y)), 10, 0)
 
-                    # Draw neighPredator radii
+                    # Draw neighAgent radii
                     # pygame.draw.circle(scenario, (255,0,0), (int(boid.x), int(boid.y)), predSight,8)
 
                 else: # Casual Agents 
 
-                    if boid in huntedBoids:
+                    if boid in huntedBoids: # Dead casualAgents
                         agentColor = (0,0,0)                     
                         pygame.draw.circle(scenario, agentColor, (int(boid.x), int(boid.y)), int(casualAgentR),0)
                         colorRing = (225,0,0) 
                         pygame.draw.circle(scenario, colorRing, (int(boid.x), int(boid.y)), int(casualAgentR),int(casualAgentR/2))
                     
-                    elif boid in livingBoids:
+                    elif boid in livingBoids: # Alive casualAgents
                         # Make casual agents blink w/ rainbow like colors + Draw its body + Draw its outer layer
                         agentColor = (random.randint(0,240),random.randint(0,240),random.randint(0,240))                     
                         pygame.draw.circle(scenario, agentColor, (int(boid.x), int(boid.y)), int(casualAgentR),0)
                         
                         # Check if current casualAgent ('boid') is prey of ANY of the predatorAgents
                         isHunted = []                         
-                        isHunted = [1 for pred in predatorAgents if boid in pred.neighPredator]
+                        isHunted = [1 for pred in predatorAgents if boid in pred.neighAgent]
+                        
                         if isHunted : colorRing = (255,128,0) # Boid in hunting zone
-
-                        elif boid not in boidsNotATgoal: colorRing = (0,180,255) # Boids in leaderAgents protected zone
+                        elif boid not in boidsNotATgoal: 
+                            colorRing = (0,180,255) # Boids in leaderAgents protected zone
                         else:  colorRing = (255,255,255) # Any where in the arena
                         pygame.draw.circle(scenario, colorRing, (int(boid.x), int(boid.y)), int(casualAgentR),int(casualAgentR/2))
                     
@@ -743,58 +731,8 @@ def main(argv):
         [boid.move(maxVel,maxDeltaVel,visualON) for boid in livingBoids] # if (abs(boid.type) == 0 )]  
 
     " Simulation Exit "    
-    # if (evoSuccess):
-    #     print "\nEnd of Simulation: Success, CLEAN EXIT\n"
-    # else:
-    #     print "\nEnd of Simulation: TIME OUT\n"
-    # pygame.time.delay(3500)
-
     pygame.display.quit()
-    # print "Before Normalizing : \n "
-    # print "interCollV: %d" %interCollV
-    # print "medGRadiiV: %f" %medGRadiiV
-    # print "deltaTV: %f" %deltaTV
-    # print "t2GoalV: %f" %t2GoalV
-    # print "numATgoal: %f" %numATgoal
-    # print "evoSuccess: %f" %evoSuccess
-    # print "INTER : %d" %numIter
-    # raw_input()
 
-    " Transform Fitness Parameters "
-    # The selected fitness parameters are suited for a minimization algo. (i.e. lower value => higher fitness)
-    # ... compute cocient param = 1/(x + 1)(adding to parameter value + 1, to prevent n/0 = NaN) to make them maximization parameters    
-    # interCollV = 1.0/((interCollV*1.0/numIter)+1) # Average No. compactAgents over  No. of position updates (iterations)
-   
-    # # Average median raddi ver  No. of position updates (iterations)
-    # avgGRadii = (medGRadiiV/numIter)
-    # idealGRadii = 100
-    # std = 40
-    # medGRadiiV = 1*math.exp(- ((avgGRadii-idealGRadii)**2) / (2*std**2) )    
-    # if math.isnan(medGRadiiV) : medGRadiiV = 0.0
-
-    # if deltaTV == 0.0: deltaTV = 0.0
-    # else: deltaTV = 1.0/( ((deltaTV/factUS)/(noBoids)) + 1)  # Average deltaTimes over  No. of arrivals to goal --> Precisely, it should ve over(numATgoal-1) , 
-    #                                                             # since if N-agents are at goal there exist (N-1)-delta time intervals ... but its done '+1' to prevent NaN
-   
-    # # numATgoalV = numATgoal*1.0/noBoids    
-    # if countAvg != 0: avgNumATgoalV = (avgNumATgoal*1.0/countAvg)*1.0/noBoids
-    # # if iterations at the end of the simu. arent sufficiente for a complete iterWindow
-    # # to occur. Simply compute the avg, as the current number of agets at goal
-    # else: avgNumATgoalV = numATgoal*1.0/noBoids 
-    # # print avgNumATgoalV*noBoids
-    
-    # # evoSuccessV = evoSuccess
-    # # print "After Normalizing : \n "
-    # # print "interCollV: %f" %interCollV
-    # # print "medGRadiiV: %f" %medGRadiiV
-    # # print "deltaTV: %f" %deltaTV
-    # # print "t2GoalV: %f" %t2GoalV
-    # # print "numATgoalV: %f" %numATgoalV
-    # # print "evoSuccessV: %f" %evoSuccessV
-    # # raw_input()
-
-    # fitVals = np.array([[interCollV, medGRadiiV, deltaTV,avgNumATgoalV]])
-    # return fitVals
 
 
 # " Class which initializes obstacles objects, in a similar way to boid objects."
