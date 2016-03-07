@@ -1,0 +1,10 @@
+Since Visual Studio communicates with ASEBA through the asebacmd client, which connects with asebaswitch. The original
+windows ASEBA installer generates constant errors when this is done.
+
+Because of this it is necessary to use a re compiled modified version of ASEBA, available at:
+
+	"UsersPath"\Swiss Thesis\CoreRobot\ASEBA\ASEBA External Interfaces\ASEBAExt Code\asebaMYbuild\aseba
+
+PD: an easy way to execute it is thorugh the command line (cmd):
+
+	cd "UsersPath\asebaMYbuild\asebaEXE" && asebastudio && asebaswitch -p 33333 ser:port= "EpucksPortXXXX"

@@ -1,0 +1,75 @@
+<!DOCTYPE aesl-source>
+<network>
+
+
+<!--list of global events-->
+<event size="2" name="move"/>
+
+
+<!--list of constants-->
+<constant value="32" name="rotCons"/>
+
+
+<!--show keywords state-->
+<keywords flag="true"/>
+
+
+<!--node e-puck1-->
+<node nodeId="0" name="e-puck0"> 
+
+var ang[2] = [0,0] # [0] => past target angle; [1] => Current target angle 
+var delta # pure difference between target and current angle
+var deltaAng[2] # angle to move + direction ([0]=>cclk &amp; [1]=>clk) to reach target angle 
+var deltaMove # Most efficient angle to Actually move
+var vel # robots speed given by user
+var rotTime = 0 # Rotation time [in cycles]
+var rotDir # Bool variables: -1=> turnLeft(cclk) ; 0=> turnRight(clk)
+
+# Robot rotation subrutine
+sub rotRobot	
+	# move to target angle
+	while rotTime &lt; deltaMove*rotCons do
+		leftSpeed = 1000*rotDir
+		rightSpeed = 1000*-rotDir
+		rotTime += 1
+	end
+	rotTime = 0 # reset counter
+
+	# move forward w/ the speed give by the user
+	leftSpeed = vel
+	rightSpeed = vel
+
+
+onevent move
+	ang[1] = args[0] # Capture target angle	
+	vel = args[1] # Capture target speed
+	
+	delta = ang[1]-ang[0] # targetAng - currentAng
+	ang[0] = ang[1]
+
+	# Counterclockwize rotation
+	deltaAng[0] = delta
+	if (delta &lt; 0) then
+		deltaAng[0] = 360 + delta
+	end
+
+	# Clockwize rotation
+	deltaAng[1] = 360 - delta
+	if (delta &lt; 0) then
+		deltaAng[1] = delta*-1
+	end
+
+	# Compute most efective angle to move (smallest one)
+	deltaMove = deltaAng[0]
+	rotDir = -1
+	if (deltaAng[1] &lt;= deltaAng[0]) then
+		deltaMove = deltaAng[1]
+		rotDir = 1
+	end
+
+	callsub rotRobot
+
+</node>
+
+
+</network>
