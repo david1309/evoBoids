@@ -206,26 +206,35 @@ class Boid:
         # Update Agents Position
         # Check on visualON, because for mouse position capture the video system (visual simulation) must be ON
         if ( (self.type == 1 or self.type == -1) and visualON): # Controlled Special Agents
-            # # Make controlledAgents directly go to mouse position
-            # if gamePlay == 0: self.x,self.y = pygame.mouse.get_pos() 
+            # Capture Object pose -> tcpCapture (tcpobject, timeout [us]). Returns [-1,-1] for invalid pose
+            pose = getPose.tcpCapture(s,10000) 
 
-            # Make controlledAgents move towards tracked position, in a 'gravity' medium
+            # offset that determines agents X&Y min. val in the simulation IFR 
+            # Decrease val. to decrease distance to simulation window border
+            minOffY = - 25 
+            minOffX = 50 
+
+            camMinY = 109 # Y min.val returned by Swisstrack (in camera IFR)
+            camMinX = 38 # X min.val returned by Swisstrack (in camera IFR)
+            realWidth = 317 # Modyfing real width since camaras readlWidth (resolution) is bigger than physical scenario size
+
+            pose = [ pose[0]*(minOffX - width)/(camMinX - realWidth) - camMinX*((minOffX - width)/(camMinX - realWidth) ) ,pose[1]*(height-minOffY)/(realHeight -camMinY) - camMinY*((height-minOffY)/(realHeight -camMinY)) ] # Physical -> Virtual Dimension tranformation
+            pose[0] = width-pose[0] # Invert X movement, for it to be w.r.t. users IFR
             
-            pose = getPose.tcpCapture(s,10000) # Capture Object pose -> tcpCapture (tcpobject, timeout [us])
-            if pose[0] != -1: # Valid Pose
-                pose = [ pose[0]*width/realWidth , pose[1]*height/realHeight ] # Physical -> Virtual Dimension tranformation
-                pose[0] = width-pose[0] # Invert X movement, for it to be w.r.t. users IFR
-                pastPose = pose # update past pose
+            if pose[1] >= 0 : pastPose = pose # update past pose if Valid pose
             else: pose = pastPose # Invalid Pose -> Dont alterate current boids position
-            
-            movTowards = Boid(1,0,0) # trick used to be able to recycle cohesion method of Boid Class
-            movTowards.x,movTowards.y = pose
-            movTowardsW = 5.0/100
-            self.cohesion([movTowards],movTowardsW,gravity,0,0)
-            
-            self.x += self.velX
-            self.y += self.velY
-                 
+
+            if gravity >=20:  # Make controlledAgents directly go to tracked position
+                self.x,self.y = pose
+
+            else: # Make controlledAgents move towards tracked position, in a 'gravity' medium                        
+                movTowards = Boid(1,0,0) # trick used to be able to recycle cohesion method of Boid Class
+                movTowards.x,movTowards.y = pose
+                movTowardsW = 5.0/100
+                self.cohesion([movTowards],movTowardsW,gravity,0,0)                    
+                self.x += self.velX
+                self.y += self.velY
+
         else:  # Autonomous casual agents  && Autonomous special agents
             self.x += self.velX
             self.y += self.velY
@@ -292,7 +301,8 @@ class Boid:
                 # persistBoost might decrease to rapidlly. therefore a '*Factor' is used
                 # to decrease the rate of change
                 persistBoost = (self.persistLevel*1.15/persistORI) # 
-                if persistBoost > 1.0: persistBoost = 1.0
+                if persistBoost > 1.0: persistBoost = 1.0 # Upper saturation Limit
+                elif persistBoost <0.5: persistBoost = 0.5 # Lower saturation Limit
                 self.velBoost *= persistBoost
 
 " Main Code "       
@@ -348,7 +358,7 @@ def main(argv):
     global gamePlay
     gamePlay = 0
     # Determines how direct do the controlled agents moves towards mouse position
-    gravity = 10
+    gravity = 2
 
     " Obstacle Parameters "
     resources = 10
@@ -357,11 +367,11 @@ def main(argv):
     " Leader VS Predator. Lead the Swarm + Slight Defense + Assisted Revival "
     if(gamePlay == 0): 
         noBoids = 20 # Number of casualAgents
-        noAutoPred = 2 # Number of Autonomous Predators
+        noAutoPred = 0 # Number of Autonomous Predators
         noAutoGuide = 0 # Number of Autonomous (guider) Leaders
-        noAutoAssist = 1 # Number of Autonomous (assistant) Leaders
+        noAutoAssist = 0 # Number of Autonomous (assistant) Leaders
         # Create a controlled 0: Nothing ; 1: leaderAgent ; 2: predatorAgent
-        contSpecial = 1
+        contSpecial = 2
         # add some extra attraction towards leader
         leaderW *= 10
 
@@ -385,20 +395,20 @@ def main(argv):
     G = 0 # Counts for how much time should global vision be active
 
     predKillZone = casualAgentR*4 # distance at which predator will effectively kill its prey
-    factP2P = 2.5 # Factor by which collisionRadii is scaled, determining how close can 2 predators stand
+    factP2P = 2.1 # Factor by which collisionRadii is scaled, determining how close can 2 predators stand
     centerCoh = 4.0/100 # How attracted is the predator towards the preysCentroid
     global velBoostORI
-    velBoostORI = 1.8 # Velocity Boost Attribute: see constructor at class 'Boid'
-    deltaBoost = 0.075 # Slope determining impact on the predatorsVelocity when group of agents is encountered
+    velBoostORI = 1.9 # Velocity Boost Attribute: see constructor at class 'Boid'
+    deltaBoost = 0.055 # Slope determining impact on the predatorsVelocity when group of agents is encountered
     maxDeltaVel = 7 # Determines Autonomous Special Agents  maximum change in speed at each time step
     
     global persistORI
     persistORI = 15 # Persistance Level Attribute: see constructor at class 'Boid'
-    deltaPersist = 0.1 # How fast does persistant level reduce when attempting to hunt/revive the same preys
+    deltaPersist = 0.25 # How fast does persistant level reduce when attempting to hunt/revive the same preys
 
 
     " Leader Parameters "
-    factP2L = 1.3# Factor by which collisionRadii is scaled, determining frighten would a predator be from a leader
+    factP2L = 1.0# Factor by which collisionRadii is scaled, determining frighten would a predator be from a leader
     reviveZone = predKillZone# Radii in which autoLeader (ASSISTANT) agent will revive dead casual agents
     reviveSigth = 100 # radius of vision at which autoleader will be able to localize a dead casualAgent 
 

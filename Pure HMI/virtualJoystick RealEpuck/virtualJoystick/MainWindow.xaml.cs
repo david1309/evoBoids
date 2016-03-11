@@ -202,7 +202,7 @@ namespace SkeletalTracking
                     cmd.StandardInput.WriteLine("asebacmd usermsg " + eventNo + " " + ang + " " + hyp);
                     cmd.StandardInput.Flush();
                     Console.WriteLine("\nAngle [deg]: " + ang + "   Speed : " + hyp);
-
+                    Console.WriteLine("... DISCONNECTING ...");
                     // Terminate CMD Process
                     cmd.StandardInput.Close();
                     cmd.WaitForExit();
@@ -258,7 +258,7 @@ namespace SkeletalTracking
                     // do to the limitation that the max.integer value is +- 32000, it isnt that viable.
                     timerCommand += 1;
                     eventNo = 0;
-                    if (timerCommand >= 50)
+                    if (timerCommand >= 45)
                     {
 
                         timerCommand = 0;

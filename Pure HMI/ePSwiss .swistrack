@@ -6,26 +6,26 @@
     </component>
     <component type="InputCameraUSB"/>
     <component type="ConvertToGray">
-      <parameter name="Channel" value="0"/>
+      <parameter name="Channel" value="3"/>
     </component>
     <component type="ThresholdGray">
       <parameter name="InvertThreshold" value="true"/>
-      <parameter name="Threshold" value="139"/>
+      <parameter name="Threshold" value="110"/>
     </component>
     <component type="BlobDetectionMinMax">
       <parameter name="AreaBool" value="true"/>
       <parameter name="CompactnessBool" value="true"/>
-      <parameter name="MaxArea" value="300"/>
+      <parameter name="MaxArea" value="150"/>
       <parameter name="MaxCompactness" value="0.85"/>
       <parameter name="MaxNumber" value="1"/>
       <parameter name="MaxOrientation" value=""/>
-      <parameter name="MinArea" value="100"/>
-      <parameter name="MinCompactness" value="0.45"/>
+      <parameter name="MinArea" value="85"/>
+      <parameter name="MinCompactness" value="0.5"/>
       <parameter name="MinOrientation" value=""/>
       <parameter name="OrientationBool" value="false"/>
     </component>
     <component type="NearestNeighborTracking">
-      <parameter name="MaxDistance" value="636"/>
+      <parameter name="MaxDistance" value="650"/>
       <parameter name="MaxNumber" value="1"/>
     </component>
     <component type="OutputParticles"/>
