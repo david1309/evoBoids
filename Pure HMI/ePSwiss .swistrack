@@ -2,7 +2,7 @@
 <swistrack>
   <components>
     <component type="TriggerTimer">
-      <parameter name="Interval" value="0.1"/>
+      <parameter name="Interval" value="0.01"/>
     </component>
     <component type="InputCameraUSB"/>
     <component type="ConvertToGray">
@@ -10,17 +10,17 @@
     </component>
     <component type="ThresholdGray">
       <parameter name="InvertThreshold" value="true"/>
-      <parameter name="Threshold" value="110"/>
+      <parameter name="Threshold" value="120"/>
     </component>
     <component type="BlobDetectionMinMax">
       <parameter name="AreaBool" value="true"/>
       <parameter name="CompactnessBool" value="true"/>
-      <parameter name="MaxArea" value="150"/>
-      <parameter name="MaxCompactness" value="0.85"/>
+      <parameter name="MaxArea" value="130"/>
+      <parameter name="MaxCompactness" value="0.71"/>
       <parameter name="MaxNumber" value="1"/>
       <parameter name="MaxOrientation" value=""/>
-      <parameter name="MinArea" value="85"/>
-      <parameter name="MinCompactness" value="0.5"/>
+      <parameter name="MinArea" value="75"/>
+      <parameter name="MinCompactness" value="0.51"/>
       <parameter name="MinOrientation" value=""/>
       <parameter name="OrientationBool" value="false"/>
     </component>

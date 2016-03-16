@@ -41,7 +41,7 @@ import getPose
 
 "GLOBAL VARIABLES"
 pygame.init()
-scenarioSize = width,height = 1350,700 # Virtual scenario dimensions
+scenarioSize = width,height = 1280,700 #1350,700 # Virtual scenario dimensions
 realWidth, realHeight = 340,280 # Physical scenario dimensions
 scenario = 0 # Only used to stablish it as a global variable
 casualAgentR = 8
@@ -207,19 +207,19 @@ class Boid:
         # Check on visualON, because for mouse position capture the video system (visual simulation) must be ON
         if ( (self.type == 1 or self.type == -1) and visualON): # Controlled Special Agents
             # Capture Object pose -> tcpCapture (tcpobject, timeout [us]). Returns [-1,-1] for invalid pose
-            pose = getPose.tcpCapture(s,10000) 
+            pose = getPose.tcpCapture(s,500) 
 
-            # offset that determines agents X&Y min. val in the simulation IFR 
-            # Decrease val. to decrease distance to simulation window border
-            minOffY = - 25 
-            minOffX = 50 
+            # Calibrate  Cam so that min/max coordVals are consistant with the min/max coordValss of the simu.l
+            # Simply obtain min/max vals in X and Y  and introduce such values in the 'camX' and 'camY' vectors
+            camX = [20.0,306.0] # X axis [minVal , maxVal] returned by Swisstrack (in camera IFR)
+            mX = (-width*1.0)/(camX[1]-camX[0])
+            bX = -mX*camX[1]
 
-            camMinY = 109 # Y min.val returned by Swisstrack (in camera IFR)
-            camMinX = 38 # X min.val returned by Swisstrack (in camera IFR)
-            realWidth = 317 # Modyfing real width since camaras readlWidth (resolution) is bigger than physical scenario size
-
-            pose = [ pose[0]*(minOffX - width)/(camMinX - realWidth) - camMinX*((minOffX - width)/(camMinX - realWidth) ) ,pose[1]*(height-minOffY)/(realHeight -camMinY) - camMinY*((height-minOffY)/(realHeight -camMinY)) ] # Physical -> Virtual Dimension tranformation
-            pose[0] = width-pose[0] # Invert X movement, for it to be w.r.t. users IFR
+            camY = [112.0,276.0] # Y axis [minVal , maxVal] returned by Swisstrack (in camera IFR)
+            mY = (height*1.0)/(camY[1]-camY[0])
+            bY = -mY*camY[0]
+       
+            pose = [mX*pose[0]+bX , mY*pose[1]+bY] # Physical -> Virtual Dimension transformation
             
             if pose[1] >= 0 : pastPose = pose # update past pose if Valid pose
             else: pose = pastPose # Invalid Pose -> Dont alterate current boids position
@@ -310,6 +310,7 @@ def main(argv):
     
     "Simulation  Parameters: neighRadii, cohW, repW, alignW, crowdingThr, leaderW, predatorW "   
     if len(argv)>1:
+        # neighRadii  cohW  repW  alignW  crowdingThr  leaderW  preadatorW  guiderW  visualON  timeOutT
         neighRadii = float(argv[1]) # [150.0]Vecinity which each agents checks to apply behavioral rules
         crowdingThr = float(argv[5]) # [10.0]agents proximity before activation of "repulsion behavior"
 
@@ -358,7 +359,7 @@ def main(argv):
     global gamePlay
     gamePlay = 0
     # Determines how direct do the controlled agents moves towards mouse position
-    gravity = 2
+    gravity = 15
 
     " Obstacle Parameters "
     resources = 10
@@ -366,7 +367,7 @@ def main(argv):
 
     " Leader VS Predator. Lead the Swarm + Slight Defense + Assisted Revival "
     if(gamePlay == 0): 
-        noBoids = 20 # Number of casualAgents
+        noBoids = 25 # Number of casualAgents
         noAutoPred = 0 # Number of Autonomous Predators
         noAutoGuide = 0 # Number of Autonomous (guider) Leaders
         noAutoAssist = 0 # Number of Autonomous (assistant) Leaders
@@ -552,8 +553,9 @@ def main(argv):
                     
                     # Hunted casualAgent
                     if(dist2neigh < predKillZone and not otherBoid.type ): 
-                        livingBoids.remove(otherBoid) # update survivors
-                        huntedBoids.append(otherBoid) # update casualties 
+                        dav = 1
+                        # livingBoids.remove(otherBoid) # update survivors
+                        # huntedBoids.append(otherBoid) # update casualties 
                     # Casual agent in predators Sight Zone
                     elif not otherBoid.type: 
                         neighPredatorTemp.append(otherBoid)  
