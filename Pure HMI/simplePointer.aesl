@@ -1,0 +1,74 @@
+<!DOCTYPE aesl-source>
+<network>
+
+
+<!--list of global events-->
+<event size="1" name="move"/>
+
+
+<!--list of constants-->
+<constant value="500" name="rotT"/>
+
+
+<!--show keywords state-->
+<keywords flag="true"/>
+
+
+<!--node e-puck0-->
+<node nodeId="1" name="e-puck0"> 
+var command # stores desired comman by user
+var linVel = 1000 # linear displacement robots speed
+var rotVel = 500 # angular motion robots speed
+var vel # speed at which robot is going to move
+# 1-> indicates subroutine rotRobot must perform a straight motion ; -1-> indicates subroutine rotRobot must perform a rotational motion 
+var straight 
+
+var t = 0 # Rotation time [in cycles of while loop]
+var rotDir # Bool variables: 1 => turnRight(CW) ; -1=> turnLeft(CCW)
+
+# Robot rotation subrutine
+sub rotRobot
+	if (straight == 1) then # Hight speed for linear displacements
+		vel = linVel
+	else # Low speed for angular displacements 
+		vel = rotVel
+	end
+	# move to target angle
+	while t &lt; rotT do
+		leftSpeed = vel*rotDir
+		rightSpeed = vel*straight*rotDir
+		t += 1 
+	end
+	t = 0 # reset counter	
+	
+
+onevent move
+	command = args[0] # Capture command : 0-> Stop , 1 -> Straight motion , 2 -> CW rot. 3, -> CCW rot.
+
+	# Configure rotRobot Commands
+	if (command == 0) then # Stop
+		leftSpeed = 0
+		rightSpeed = 0
+
+	elseif (command == 1) then # Straight motion
+		straight = 1 # indicate desire for strAight motion
+		rotDir = 1
+
+	elseif (command == 2) then # CW Rotation
+		straight = -1
+		rotDir = 1 # CW robot rot.
+
+	else # CCW Rotation
+		straight = -1
+		rotDir = -1 # CCW robot rot.
+	end
+
+	# Execute Commandss
+	if (command != 0) then
+		callsub rotRobot
+	end
+
+</node>
+
+
+</network>

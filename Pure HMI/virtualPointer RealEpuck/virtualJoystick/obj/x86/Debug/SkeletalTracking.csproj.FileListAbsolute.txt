@@ -1,0 +1,121 @@
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\SkeletalTracking.exe
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\SkeletalTracking.pdb
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.dll
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Expression.Drawing.dll
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\MainWindow.baml
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\MainWindow.g.cs
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\App.g.cs
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking_MarkupCompile.cache
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.g.resources
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.Properties.Resources.resources
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\danielfe\Desktop\Kinect\Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\SkeletalTracking.exe
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\SkeletalTracking.pdb
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.dll
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Expression.Drawing.dll
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\MainWindow.baml
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\MainWindow.g.cs
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\App.g.cs
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking_MarkupCompile.cache
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.g.resources
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.Properties.Resources.resources
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\danielfe\Desktop\Work Files\Projects\KinectSDK\v1Quickstarts\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\SkeletalTracking.exe
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\SkeletalTracking.pdb
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.dll
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Expression.Drawing.dll
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\MainWindow.baml
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\MainWindow.g.cs
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\App.g.cs
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking_MarkupCompile.cache
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.g.resources
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.Properties.Resources.resources
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\danielfe\Desktop\v1\KinectforWindowsSDKV1\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.dll
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Expression.Drawing.dll
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.csprojResolveAssemblyReference.cache
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\MainWindow.baml
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\MainWindow.g.cs
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\App.g.cs
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking_MarkupCompile.cache
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.g.resources
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.Properties.Resources.resources
+C:\Users\IVAN\Desktop\New folder\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.csproj.GenerateResource.Cache
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.csprojResolveAssemblyReference.cache
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\MainWindow.baml
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\MainWindow.g.cs
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\App.g.cs
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking_MarkupCompile.cache
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.g.resources
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.Properties.Resources.resources
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.csproj.GenerateResource.Cache
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.dll
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Expression.Drawing.dll
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+C:\Users\IVAN\Desktop\New folder - Copy\5.Skeletal Tracking\SkeletalTracking\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\bin\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\bin\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.dll
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Expression.Drawing.dll
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.csprojResolveAssemblyReference.cache
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\obj\x86\Debug\MainWindow.baml
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\obj\x86\Debug\MainWindow.g.cs
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\obj\x86\Debug\App.g.cs
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking_MarkupCompile.cache
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.g.resources
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.Properties.Resources.resources
+C:\Users\IVAN\Desktop\epuckJoystick\EpuckJoystick\SkeletalTracking\SkeletalTracking\obj\x86\Debug\SkeletalTracking.csproj.GenerateResource.Cache
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\obj\x86\Debug\SkeletalTracking.csprojResolveAssemblyReference.cache
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\obj\x86\Debug\App.g.cs
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\obj\x86\Debug\SkeletalTracking_MarkupCompile.cache
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\bin\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\bin\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\bin\Debug\Microsoft.Expression.Drawing.dll
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\obj\x86\Debug\MainWindow.baml
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\obj\x86\Debug\MainWindow.g.cs
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\obj\x86\Debug\SkeletalTracking.g.resources
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\obj\x86\Debug\SkeletalTracking.Properties.Resources.resources
+C:\Users\IVAN\Desktop\virtualJoystick\SkeletalTracking\obj\x86\Debug\SkeletalTracking.csproj.GenerateResource.Cache

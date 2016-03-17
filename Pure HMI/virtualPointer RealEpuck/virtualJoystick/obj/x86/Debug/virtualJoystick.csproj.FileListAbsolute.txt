@@ -1,0 +1,82 @@
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\bin\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\bin\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\bin\Debug\Microsoft.Expression.Drawing.dll
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\obj\x86\Debug\virtualJoystick.csprojResolveAssemblyReference.cache
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\obj\x86\Debug\MainWindow.baml
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\obj\x86\Debug\MainWindow.g.cs
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\obj\x86\Debug\App.g.cs
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\obj\x86\Debug\SkeletalTracking_MarkupCompile.cache
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\obj\x86\Debug\SkeletalTracking.g.resources
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\obj\x86\Debug\SkeletalTracking.Properties.Resources.resources
+C:\Users\IVAN\Desktop\virtualJoystick\virtualJoystick\obj\x86\Debug\virtualJoystick.csproj.GenerateResource.Cache
+C:\Users\IVAN\Desktop\virtualJoystick (Pure CMD)\virtualJoystick\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\virtualJoystick (Pure CMD)\virtualJoystick\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\bin\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\bin\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\bin\Debug\Microsoft.Expression.Drawing.dll
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\obj\x86\Debug\virtualJoystick.csprojResolveAssemblyReference.cache
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\obj\x86\Debug\MainWindow.baml
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\obj\x86\Debug\MainWindow.g.cs
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\obj\x86\Debug\App.g.cs
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\obj\x86\Debug\SkeletalTracking_MarkupCompile.cache
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\obj\x86\Debug\SkeletalTracking.g.resources
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\obj\x86\Debug\SkeletalTracking.Properties.Resources.resources
+C:\Users\IVAN\Desktop\virtualJoystick (with Epucks)\virtualJoystick\obj\x86\Debug\virtualJoystick.csproj.GenerateResource.Cache
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\bin\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\bin\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\bin\Debug\Microsoft.Expression.Drawing.dll
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\virtualJoystick.csprojResolveAssemblyReference.cache
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\MainWindow.baml
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\MainWindow.g.cs
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\App.g.cs
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking_MarkupCompile.cache
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking.g.resources
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking.Properties.Resources.resources
+C:\Users\IVAN\Desktop\realEpuckKinectJoystick_CODE\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\virtualJoystick.csproj.GenerateResource.Cache
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\bin\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\bin\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\bin\Debug\Microsoft.Expression.Drawing.dll
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\virtualJoystick.csprojResolveAssemblyReference.cache
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\MainWindow.baml
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\MainWindow.g.cs
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\App.g.cs
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking_MarkupCompile.cache
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking.g.resources
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking.Properties.Resources.resources
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualJoystick RealEpuck\virtualJoystick\obj\x86\Debug\virtualJoystick.csproj.GenerateResource.Cache
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\bin\Debug\SkeletalTracking.exe
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\bin\Debug\SkeletalTracking.pdb
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\bin\Debug\Microsoft.Expression.Drawing.dll
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\obj\x86\Debug\virtualJoystick.csprojResolveAssemblyReference.cache
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\obj\x86\Debug\MainWindow.baml
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\obj\x86\Debug\MainWindow.g.cs
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\obj\x86\Debug\App.g.cs
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking_MarkupCompile.cache
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking.g.resources
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\obj\x86\Debug\SkeletalTracking.Properties.Resources.resources
+C:\Users\IVAN\Desktop\evoBoids\evoBoids Code\Pure HMI\virtualPointer RealEpuck\virtualJoystick\obj\x86\Debug\virtualJoystick.csproj.GenerateResource.Cache

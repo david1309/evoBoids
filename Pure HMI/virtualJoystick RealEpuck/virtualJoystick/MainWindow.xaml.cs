@@ -202,9 +202,10 @@ namespace SkeletalTracking
                     cmd.StandardInput.WriteLine("asebacmd usermsg " + eventNo + " " + ang + " " + hyp);
                     cmd.StandardInput.Flush();
                     Console.WriteLine("\nAngle [deg]: " + ang + "   Speed : " + hyp);
-                    Console.WriteLine("... DISCONNECTING ...");
+                    Console.WriteLine("... DISCONNECTING 1 ...");
                     // Terminate CMD Process
                     cmd.StandardInput.Close();
+                    Console.WriteLine("... DISCONNECTING 2 ...");
                     cmd.WaitForExit();
 
                     Console.WriteLine("DELETE CONNECTION");
@@ -220,7 +221,7 @@ namespace SkeletalTracking
                 if (!startCMD)// If robots commands are ready to send (i.e. Asebacmd started)
                 {
                     // Compute Joystick Displacement
-                    //initPos = leftHPos; // Instead of using the captures rightHand initialPos, use currentPos of leftHand as the center (pivot)
+                    initPos = leftHPos; // Instead of using the captures rightHand initialPos, use currentPos of leftHand as the center (pivot)
                     distX = ((Math.Abs(rightHPos.X - initPos.X) > centerCube[0]) ? 1 : 0) * (rightHPos.X - initPos.X);
                     distZ = ((Math.Abs(rightHPos.Z - initPos.Z) > centerCube[1]) ? 1 : 0) * -(rightHPos.Z - initPos.Z);
                     isActive = true;// (Math.Abs(rightHPos.Y - initPos.Y) < centerCube[2]);
